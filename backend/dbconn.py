@@ -1,18 +1,22 @@
 """
 DBConn class is used to talk to database with sql
 Sample usage:
-database = dbconn.DBConn()
+database = dbconn.DBConn(file_cache=____)
 table_1 = database.run_sql('SELECT * FROM user_accounts;')
+del database
 """
 
 import os
 import psycopg
+from psycopg_pool import ConnectionPool
 from dotenv import load_dotenv
 
 
 class DBConn:
     """
     DBConn class to create a connection pool and run SQL queries
+    The cache option is good when you need to repeatedly access the same table
+    Use del to clear cache
     """
 
     def __init__(self) -> None:
@@ -23,8 +27,7 @@ class DBConn:
         # Get the connection string from the environment variable
         load_dotenv()
         self.connection_string = os.getenv("DATABASE_URL")
-        print("DEBUG")
-        print(self.connection_string)
+        self.conn_pool = ConnectionPool(self.connection_string)
 
     def run_sql(self, sql_query: str) -> list:
         """
@@ -32,14 +35,13 @@ class DBConn:
         return empty list if no result or status is false
         does not update cache
         """
-        # Get a connection from the pool
-        conn = psycopg.connect(self.connection_string)
-        # Create a cursor object
-        cur = conn.cursor()
-        # Execute SQL commands to retrieve the current time and version from PostgreSQL
-        cur.execute(sql_query)
-        results = cur.fetchall()
-        # Close the cursor and return the connection to the pool
-        cur.close()
+        with self.conn_pool.connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql_query)
+                results = []
+                if cur.description is not None:
+                    results = cur.fetchall()
+                else:
+                    conn.commit()
 
         return results
