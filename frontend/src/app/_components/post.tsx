@@ -18,11 +18,11 @@ export function LatestPost() {
 
   return (
     <div className="w-full max-w-xs">
-      {latestPost ? (
-        <p className="truncate">Your most recent post: {latestPost.name}</p>
-      ) : (
-        <p>You have no posts yet.</p>
-      )}
+      {latestPost
+    ? latestPost.name
+      ? `I love ${latestPost.name} too!`
+      : "I love something... but I'm not sure what!"
+    : "What is your favourite juice?"}
       <form
         onSubmit={(e) => {
           e.preventDefault();
