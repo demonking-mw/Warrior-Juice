@@ -36,7 +36,7 @@ class DBConn:
         does not update cache
         """
         with self.conn_pool.connection() as conn:
-            with conn.cursor() as cur:
+            with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
                 cur.execute(sql_query)
                 results = []
                 if cur.description is not None:
