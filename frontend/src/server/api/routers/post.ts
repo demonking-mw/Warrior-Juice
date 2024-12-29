@@ -10,7 +10,7 @@ interface Post {
 const posts: Post[] = [
   {
     id: 1,
-    name: "Hello World",
+    name: "What is your favourite juice?",
   },
 ];
 
@@ -19,7 +19,7 @@ export const postRouter = createTRPCRouter({
     .input(z.object({ text: z.string() }))
     .query(({ input }) => {
       return {
-        greeting: `Hello ${input.text}`,
+        greeting: `Welcome to ${input.text}`,
       };
     }),
 
