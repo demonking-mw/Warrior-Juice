@@ -1,19 +1,13 @@
-import Link from "next/link";
 
 import { LatestPost } from "~/app/_components/post";
 import { api, HydrateClient } from "~/trpc/server";
-export default async function Home() {
-<<<<<<< HEAD
-  const hello = await api.post.hello({ text: "WarriorJuice" });
-=======
 
-  
->>>>>>> main
+export default async function Home() {
+  const hello = await api.post.hello({ text: "WarriorJuice" });
 
   void api.post.getLatest.prefetch();
 
   return (
-<<<<<<< HEAD
     <HydrateClient>
       <main className="flex min-h-screen flex-col justify-center bg-gradient-to-b from-[#FAE100] to-[#EAAB00] text-black">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
@@ -34,25 +28,8 @@ export default async function Home() {
             {hello ? hello.greeting : "Loading tRPC query..."}
           </p>
           </div>
-=======
-    <div className="flex flex-col items-center space-y-4">
-      <div>
-        <div className="p-4 rounded-md">
-          <h1 className="font-bold text-center">Welcome to Warrior Juice</h1>
->>>>>>> main
         </div>
-        
-        <p>
-          This is a blog where you can find all the latest news and updates
-          about the game Warrior Juice.
-        </p>
-        <div className="p-4 items-center space-y-4">
-          <p>
-            <Link href="/dbcomm">Go to DB_Comm</Link>
-        </p>
-        </div>
-        
-      </div>
-    </div>
+      </main>
+    </HydrateClient>
   );
 }
