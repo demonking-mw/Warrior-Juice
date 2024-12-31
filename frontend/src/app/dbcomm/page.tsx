@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 /**
  * playground
@@ -6,11 +6,17 @@ import React from 'react';
  */
 
 const Page: React.FC = () => {
-    return (
-        <div>
-            <h1>Hello World</h1>
-        </div>
-    );
+  return (
+    <div className="flex">
+      <div className="bg-gold flex-1 items-center justify-center">
+        <h1>Hello World</h1>
+      </div>
+
+      <div className="flex-1">
+        <h1>Hello Again</h1>
+      </div>
+    </div>
+  );
 };
 
 export default Page;
