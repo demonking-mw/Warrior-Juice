@@ -1,16 +1,18 @@
-'''
+"""
 parse the user input during a module creation and return the parsed data
 Calculate and generate information to reduce user workload
-'''
+"""
 
 from dataclasses import dataclass
 from flask_restful import reqparse
 
+
 @dataclass
 class ModuleData:
-    '''
+    """
     ModuleData class to store the data for a module
-    '''
+    """
+
 
 class ParseModule:
     """

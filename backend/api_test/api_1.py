@@ -52,7 +52,7 @@ class User(Resource):
             print(table_1)
         except psycopg.errors.UndefinedColumn as e:
             return {"status": False, "detail": {"status": "user not found"}}, 400
-        del database
+        database.close()
         if table_1 and table_1[0]["pwd"] == args["pwd"]:
             return {"status": True, "detail": table_1[0]}, 200
         else:
@@ -65,13 +65,13 @@ class User(Resource):
         """
         args = user_regis_args.parse_args()
         database = dbconn.DBConn()
-        sql_query = f"INSERT INTO user_accounts VALUES('{args["user_name"]}', '{args["pwd"]}', '{args["email"]}', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], ARRAY[]::integer[])"
+        sql_query = f"INSERT INTO user_accounts VALUES('{args['user_name']}', '{args["pwd"]}', '{args["email"]}', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], ARRAY[]::integer[])"
         try:
             database.run_sql(sql_query)
-            del database
+            database.close()
             return {"status": True, "detail": {"status": "user created"}}, 201
         except psycopg.errors.UniqueViolation as e:
-            del database
+            database.close()
             return {"status": False, "detail": {"status": "user already exists"}}, 200
 
 

@@ -45,3 +45,9 @@ class DBConn:
                     conn.commit()
 
         return results
+
+    def close(self) -> None:
+        """
+        Close all connections in the pool
+        """
+        self.conn_pool.close()
