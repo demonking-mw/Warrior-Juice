@@ -1,10 +1,11 @@
 """
 Operations around activities
 """
-
+import json
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 import psycopg
+
 from backend.flask_api import dbconn, input_req
 from backend.logic_classes import user_name_flatten as unf
 
@@ -124,7 +125,7 @@ class Activity(Resource):
         database = dbconn.DBConn()
         # Create the activity
         args = input_req.activity_create.parse_args()
-
+        
         # Define the columns and corresponding values
         columns = ["act_title", "user_name"]
         values = ["%s", "%s"]
@@ -161,17 +162,18 @@ class Activity(Resource):
             VALUES ({', '.join(values)})
             RETURNING act_id;
         """
-
+        
         # Execute SQL query
         try:
             act_id = database.run_sql(sql_query, params)
         except Exception as e:
             database.close()
-            return {"status": False, "detail": {"status": "activity creation failed with error", "detail": e}}, 400
+            return {"status": False, "detail": {"status": "activity creation failed with error", "detail": str(e)}}, 400
 
         # Add it to each user, include the userid in the return if they dne
         user_list = unf.user_flatten(args["user_name"])
         failed_users = []
+        
         for user_name in user_list:
             sql_query = f"SELECT user_act_list FROM user_accounts WHERE user_name = '{user_name}';"
             try:
@@ -183,10 +185,15 @@ class Activity(Resource):
                 failed_users.append(user_name)
                 continue
             activity_list = act_list[0]["user_act_list"]
-            activity_list.append(act_id)
+            activity_list.append(act_id[0]["act_id"])
             sql_query = f"UPDATE user_accounts SET user_act_list = ARRAY{activity_list} WHERE user_name = '{user_name}';"
+            print("DEBUG: activity list")
+            print(activity_list)
             try:
                 database.run_sql(sql_query)
             except Exception as e:
+                print("FAILURE REASON:")
+                print(str(e))
                 failed_users.append(user_name)
+        database.close()
         return {"status": True, "detail": {"status": "activity created with existing users updated", "failed": failed_users}}, 201

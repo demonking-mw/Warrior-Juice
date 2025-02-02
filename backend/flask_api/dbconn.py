@@ -32,7 +32,7 @@ class DBConn:
             self.connection_string, kwargs={"sslmode": "require"}
         )
 
-    def run_sql(self, sql_query: str) -> list:
+    def run_sql(self, sql_query: str, params=None) -> list:
         """
         Run SQL query on existing connection pool
         return empty list if no result or status is false
@@ -40,7 +40,7 @@ class DBConn:
         """
         with self.conn_pool.connection() as conn:
             with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
-                cur.execute(sql_query)
+                cur.execute(sql_query, params)
                 results = []
                 if cur.description is not None:
                     results = cur.fetchall()
