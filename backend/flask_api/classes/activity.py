@@ -6,6 +6,7 @@ from flask import Flask
 from flask_restful import Api, Resource, reqparse
 import psycopg
 from backend.flask_api import dbconn, input_req
+from backend.logic_classes import user_name_flatten as unf
 
 
 class Activity(Resource):
@@ -92,7 +93,7 @@ class Activity(Resource):
                             "activity": act[0],
                         },
                     }, 200
-                elif act and args["user_name"] in act[0]["user_name"].values():
+                elif act and args["user_name"] in unf.user_flatten(act[0]["user_name"]):
                     return {
                         "status": True,
                         "detail": {
@@ -113,3 +114,79 @@ class Activity(Resource):
                     "status": False,
                     "detail": {"status": "activity not found", "detail": e},
                 }, 400
+
+    def post(self):
+        """
+        Create an activity
+        Updates all user accounts with the new activity
+        """
+        args = input_req.activity_create.parse_args()
+        database = dbconn.DBConn()
+        # Create the activity
+        args = input_req.activity_create.parse_args()
+
+        # Define the columns and corresponding values
+        columns = ["act_title", "user_name"]
+        values = ["%s", "%s"]
+        params = [args["act_title"], json.dumps(args["user_name"])]
+
+        if args.get("act_type"):
+            columns.append("act_type")
+            values.append("%s")
+            params.append(args["act_type"])
+
+        if args.get("due_date"):
+            columns.append("due_date")
+            values.append("%s")
+            params.append(args["due_date"])
+
+        if args.get("act_brief"):
+            columns.append("act_brief")
+            values.append("%s")
+            params.append(args["act_brief"])
+
+        if args.get("aux_info"):
+            columns.append("act_aux_info")
+            values.append("%s")
+            params.append(json.dumps(args["aux_info"]))
+
+        if args.get("task_tree"):
+            columns.append("tasks_tree")
+            values.append("%s")
+            params.append(json.dumps(args["task_tree"]))
+
+        # Generate SQL query
+        sql_query = f"""
+            INSERT INTO activity ({', '.join(columns)})
+            VALUES ({', '.join(values)})
+            RETURNING act_id;
+        """
+
+        # Execute SQL query
+        try:
+            act_id = database.run_sql(sql_query, params)
+        except Exception as e:
+            database.close()
+            return {"status": False, "detail": {"status": "activity creation failed with error", "detail": e}}, 400
+
+        # Add it to each user, include the userid in the return if they dne
+        user_list = unf.user_flatten(args["user_name"])
+        failed_users = []
+        for user_name in user_list:
+            sql_query = f"SELECT user_act_list FROM user_accounts WHERE user_name = '{user_name}';"
+            try:
+                act_list = database.run_sql(sql_query)
+            except psycopg.errors.UndefinedColumn as e:
+                failed_users.append(user_name)
+                continue
+            if not act_list:
+                failed_users.append(user_name)
+                continue
+            activity_list = act_list[0]["user_act_list"]
+            activity_list.append(act_id)
+            sql_query = f"UPDATE user_accounts SET user_act_list = ARRAY{activity_list} WHERE user_name = '{user_name}';"
+            try:
+                database.run_sql(sql_query)
+            except Exception as e:
+                failed_users.append(user_name)
+        return {"status": True, "detail": {"status": "activity created with existing users updated", "failed": failed_users}}, 201

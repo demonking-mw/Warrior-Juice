@@ -6,7 +6,7 @@ response = requests.get(
     BASE + "/activity",
     json={
         "get_all": False,
-        "user_name": "smith",
+        "user_name": "lol",
         "act_id": 3,
     },
     timeout=10,

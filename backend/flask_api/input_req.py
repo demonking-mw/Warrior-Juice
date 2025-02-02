@@ -66,3 +66,32 @@ activity_get.add_argument(
     "user_name", type=str, help="User name is required", required=False
 )
 activity_get.add_argument("act_id", type=int, help="Activity id", required=False)
+
+
+# activity creation: Mandatory: act_title, user name tree.
+activity_create = reqparse.RequestParser()
+activity_create.add_argument(
+    "act_title", type=str, help="Activity title is required", required=True
+)
+activity_create.add_argument(
+    "user_name", type=dict, help="User name tree is required", required=True
+)
+activity_create.add_argument("act_type", type=str, help="Activity type", required=False)
+activity_create.add_argument(
+    "due_date",
+    type=str,
+    help="Due date in the form '2025-02-02 14:30:00'",
+    required=False,
+)
+activity_create.add_argument(
+    "act_brief", type=str, help="Activity brief, up to 256 char", required=False
+)
+activity_create.add_argument(
+    "aux_info", type=dict, help="additional info for activity", required=False
+)
+activity_create.add_argument(
+    "task_tree",
+    type=dict,
+    help="tree of all subtask ids, value for each entry being the title of the task",
+    required=False,
+)
