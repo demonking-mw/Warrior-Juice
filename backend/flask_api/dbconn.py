@@ -26,8 +26,11 @@ class DBConn:
         """
         # Get the connection string from the environment variable
         load_dotenv()
-        self.connection_string = os.getenv("DATABASE_URL")
-        self.conn_pool = ConnectionPool(self.connection_string)
+        # self.connection_string = os.getenv("DATABASE_URL")
+        self.connection_string = "postgresql://wjdb_owner:U31LBQlcgPYf@ep-patient-darkness-a1123ymq-pooler.ap-southeast-1.aws.neon.tech/wjdb?sslmode=require"
+        self.conn_pool = ConnectionPool(
+            self.connection_string, kwargs={"sslmode": "require"}
+        )
 
     def run_sql(self, sql_query: str) -> list:
         """
@@ -36,7 +39,7 @@ class DBConn:
         does not update cache
         """
         with self.conn_pool.connection() as conn:
-            with conn.cursor() as cur:
+            with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
                 cur.execute(sql_query)
                 results = []
                 if cur.description is not None:
@@ -45,3 +48,9 @@ class DBConn:
                     conn.commit()
 
         return results
+
+    def close(self) -> None:
+        """
+        Close all connections in the pool
+        """
+        self.conn_pool.close()

@@ -1,10 +1,11 @@
-import dbconn
+import psycopg
 
-database = dbconn.DBConn()
-
-database.run_sql(
-    """INSERT INTO user_accounts VALUES(2, 'mw_0123', '4321', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], ARRAY[]::integer[])"""
+conn = psycopg.connect(
+    "postgresql://wjdb_owner:U31LBQlcgPYf@ep-patient-darkness-a1123ymq-pooler.ap-southeast-1.aws.neon.tech/wjdb?sslmode=require",
+    sslmode="require",
 )
-table_2 = database.run_sql("SELECT * FROM user_accounts;")
-print(table_2)
-del database
+cur = conn.cursor()
+cur.execute("SELECT 1")
+print(cur.fetchone())
+cur.close()
+conn.close()
