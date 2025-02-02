@@ -34,9 +34,14 @@ class User(Resource):
         try:
             table_1 = database.run_sql(sql_query)
             print(table_1)
+            database.close()
         except psycopg.errors.UndefinedColumn as e:
+            return {
+                "status": False,
+                "detail": {"status": "user not found", "detail": e},
+            }, 400
+        if not user_info:
             return {"status": False, "detail": {"status": "user not found"}}, 400
-        database.close()
         if table_1 and table_1[0]["pwd"] == args["pwd"]:
             return {"status": True, "detail": table_1[0]}, 200
         else:
@@ -56,7 +61,114 @@ class User(Resource):
             return {"status": True, "detail": {"status": "user created"}}, 201
         except psycopg.errors.UniqueViolation as e:
             database.close()
-            return {"status": False, "detail": {"status": "user already exists"}}, 200
+            return {
+                "status": False,
+                "detail": {"status": "user already exists", "detail": e},
+            }, 200
+
+    def put(self):
+        """
+        returns status as boolean of whether action is successful
+        To avoid confusion, only one action can be performed at a time
+        Operation logic: old password is mandatory for changing email, optional for changing password
+        Auth can be used to change password
+        """
+        args = input_req.user_modify.parse_args()
+        database = dbconn.DBConn()
+        # change user details, password or email
+        try:
+            # gets user info and return error if not found
+            sql_query = (
+                f"SELECT * FROM user_accounts WHERE user_name = '{args['user_name']}';"
+            )
+            user_info = database.run_sql(sql_query)
+        except psycopg.errors.UndefinedColumn as e:
+            database.close()
+            return {
+                "status": False,
+                "detail": {"status": "user not found", "detail": e},
+            }, 400
+        if not user_info:
+            database.close()
+            return {"status": False, "detail": {"status": "user not found"}}, 400
+        # this ensures the user in question exists
+        if args["action"] == "change":
+            if args["pwd"] != None:
+                # if pwd is provided, then assume user want to change password knowing old password
+                if user_info and user_info[0]["pwd"] == args["pwd"]:
+                    # if the old password is correct
+                    if args["new_pwd"] != None:
+                        # change password to new password
+                        sql_query = f"UPDATE user_accounts SET pwd = '{args['new_pwd']}' WHERE user_name = '{args['user_name']}';"
+                        database.run_sql(sql_query)
+                        database.close()
+                        return {
+                            "status": True,
+                            "detail": {
+                                "status": f"password changed for user '{args['user_name']}'"
+                            },
+                        }, 200
+                    elif args["email"] != None:
+                        # change email to new email
+                        sql_query = f"UPDATE user_accounts SET email = '{args['email']}' WHERE user_name = '{args['user_name']}';"
+                        database.run_sql(sql_query)
+                        database.close()
+                        return {
+                            "status": True,
+                            "detail": {
+                                "status": f"email changed for user '{args['user_name']}'"
+                            },
+                        }, 200
+                    else:
+                        # no action done but old password is correct
+                        database.close()
+                        return {
+                            "status": True,
+                            "detail": {"status": "no action done"},
+                        }, 200
+                else:
+                    database.close()
+                    return {
+                        "status": False,
+                        "detail": {"status": "old password incorrect"},
+                    }, 400
+            elif True:
+                # For future: insert auth/email verification stuff in place of True
+                # Alternatively, use info in args["detail"] to authenticate
+                sql_query = f"UPDATE user_accounts SET pwd = '{args['new_pwd']}' WHERE user_name = '{args['user_name']}';"
+                database.run_sql(sql_query)
+                database.close()
+                return {
+                    "status": True,
+                    "detail": {
+                        "status": f"password changed for user '{args['user_name']}' after successful external auth"
+                    },
+                }, 200
+            else:
+                database.close()
+                return {
+                    "status": False,
+                    "detail": {"status": "old password not provided and auth failed"},
+                }, 400
+        elif args["action"] == "mod_tier":
+            if True:
+                # For future: insert auth/email verification stuff in place of True
+                # Alternatively, use info in args["detail"] to authenticate
+                sql_query = f"UPDATE user_accounts SET acc_type = '{args['tier']}' WHERE user_name = '{args['user_name']}';"
+                database.run_sql(sql_query)
+                database.close()
+                return {
+                    "status": True,
+                    "detail": {
+                        "status": f"tier changed for user '{args['user_name']}'"
+                    },
+                }, 200
+            else:
+                database.close()
+                return {"status": False, "detail": {"status": "auth failed"}}, 400
+        else:
+            database.close()
+            return {"status": False, "detail": {"status": "unknown action"}}, 400
 
 
 api.add_resource(User, "/user")
