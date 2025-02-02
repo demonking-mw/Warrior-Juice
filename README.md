@@ -32,3 +32,9 @@ Before pushing anything on backend, go to backend and run "black ." in terminal 
 
 venv activate:
 .\venv\Scripts\Activate.ps1
+
+Run API:
+python -m backend.flask_api.api_1
+
+Test: 
+python -m backend.flask_api.test
