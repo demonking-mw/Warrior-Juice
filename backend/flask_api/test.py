@@ -2,9 +2,9 @@ import requests
 
 BASE = "http://127.0.0.1:5000"
 
-response = requests.post(
+response = requests.put(
     BASE + "/user",
-    json={"user_name": "bob", "pwd": "password", "email": "my_email@gmail.com"},
+    json={"action": "change", "user_name": "bob", "pwd": "bobsmith", "new_pwd": "smth2"},
     timeout=10,
 )
 print(response.json())
