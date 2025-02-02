@@ -1,12 +1,11 @@
-'''
+"""
 Operations around users
-'''
+"""
 
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 import psycopg
 from backend.flask_api import dbconn, input_req
-
 
 
 class User(Resource):
@@ -27,7 +26,6 @@ class User(Resource):
         print("DEBUG: ", sql_query)
         try:
             table_1 = database.run_sql(sql_query)
-            print(table_1)
             database.close()
         except psycopg.errors.UndefinedColumn as e:
             return {
@@ -163,4 +161,3 @@ class User(Resource):
         else:
             database.close()
             return {"status": False, "detail": {"status": "unknown action"}}, 400
-

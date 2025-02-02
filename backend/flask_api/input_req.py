@@ -8,7 +8,10 @@ what for, what is required
 
 from flask_restful import reqparse
 
-
+"""
+User reqs
+"""
+#######################################################################################
 # user login: user_name and pwd
 user_login = reqparse.RequestParser()
 user_login.add_argument(
@@ -44,3 +47,22 @@ user_modify.add_argument("tier", type=str, help="Updated tier", required=False)
 user_modify.add_argument(
     "detail", type=str, help="Auth info to mode tier or new pwd", required=False
 )
+#######################################################################################
+
+
+"""
+Activity reqs
+"""
+#######################################################################################
+# get activity: user_name(optional), activity_id(optional)
+activity_get = reqparse.RequestParser()
+activity_get.add_argument(
+    "get_all",
+    type=bool,
+    help="Get all activities belonging to user? field required",
+    required=True,
+)
+activity_get.add_argument(
+    "user_name", type=str, help="User name is required", required=False
+)
+activity_get.add_argument("act_id", type=int, help="Activity id", required=False)
