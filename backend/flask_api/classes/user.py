@@ -85,11 +85,11 @@ class User(Resource):
             return {"status": False, "detail": {"status": "user not found"}}, 400
         # this ensures the user in question exists
         if args["action"] == "change":
-            if args["pwd"] != None:
+            if args["pwd"] is not None:
                 # if pwd is provided, then assume user want to change password knowing old password
                 if user_info and user_info[0]["pwd"] == args["pwd"]:
                     # if the old password is correct
-                    if args["new_pwd"] != None:
+                    if args["new_pwd"] is not None:
                         # change password to new password
                         sql_query = f"UPDATE user_accounts SET pwd = '{args['new_pwd']}' WHERE user_name = '{args['user_name']}';"
                         database.run_sql(sql_query)
@@ -100,7 +100,7 @@ class User(Resource):
                                 "status": f"password changed for user '{args['user_name']}'"
                             },
                         }, 200
-                    elif args["email"] != None:
+                    elif args["email"] is not None:
                         # change email to new email
                         sql_query = f"UPDATE user_accounts SET email = '{args['email']}' WHERE user_name = '{args['user_name']}';"
                         database.run_sql(sql_query)

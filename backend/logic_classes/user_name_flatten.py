@@ -1,11 +1,12 @@
-'''
+"""
 helper for flattening nested JSON and extracting user_names
-'''
+"""
+
 
 def user_flatten(data):
-    '''
+    """
     flattens nested JSON and extracts user_names
-    '''
+    """
     user_names = []
 
     if isinstance(data, dict):  # If data is a dictionary

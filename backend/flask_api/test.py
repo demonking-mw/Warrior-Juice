@@ -17,10 +17,9 @@ response = requests.post(
         "aux_info": {
             "location": "Zoom",
             "duration": "1 hour",
-            "agenda": ["Introductions", "Project Scope", "Timeline"]
+            "agenda": ["Introductions", "Project Scope", "Timeline"],
         },
-        "task_tree": {
-        }
+        "task_tree": {},
     },
     timeout=10,
 )

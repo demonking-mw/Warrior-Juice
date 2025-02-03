@@ -1,6 +1,7 @@
 """
 Operations around activities
 """
+
 import json
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
@@ -125,7 +126,7 @@ class Activity(Resource):
         database = dbconn.DBConn()
         # Create the activity
         args = input_req.activity_create.parse_args()
-        
+
         # Define the columns and corresponding values
         columns = ["act_title", "user_name"]
         values = ["%s", "%s"]
@@ -162,18 +163,24 @@ class Activity(Resource):
             VALUES ({', '.join(values)})
             RETURNING act_id;
         """
-        
+
         # Execute SQL query
         try:
             act_id = database.run_sql(sql_query, params)
         except Exception as e:
             database.close()
-            return {"status": False, "detail": {"status": "activity creation failed with error", "detail": str(e)}}, 400
+            return {
+                "status": False,
+                "detail": {
+                    "status": "activity creation failed with error",
+                    "detail": str(e),
+                },
+            }, 400
 
         # Add it to each user, include the userid in the return if they dne
         user_list = unf.user_flatten(args["user_name"])
         failed_users = []
-        
+
         for user_name in user_list:
             sql_query = f"SELECT user_act_list FROM user_accounts WHERE user_name = '{user_name}';"
             try:
@@ -196,4 +203,10 @@ class Activity(Resource):
                 print(str(e))
                 failed_users.append(user_name)
         database.close()
-        return {"status": True, "detail": {"status": "activity created with existing users updated", "failed": failed_users}}, 201
+        return {
+            "status": True,
+            "detail": {
+                "status": "activity created with existing users updated",
+                "failed": failed_users,
+            },
+        }, 201

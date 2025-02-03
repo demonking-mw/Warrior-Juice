@@ -6,9 +6,6 @@ python -m api_test.api_1
 
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
-import psycopg
-from . import dbconn
-from . import input_req
 from .classes.user import User
 from .classes.activity import Activity
 
