@@ -49,3 +49,20 @@ python -m backend.flask_api.api_1
 
 Test: 
 python -m backend.flask_api.test
+
+
+On WSL (Linux):
+
+bash
+Copy
+Edit
+git config --global core.autocrlf input
+This keeps files as LF when committing but leaves the working directory unchanged (always LF).
+
+On Windows (for your collaborators):
+
+bash
+Copy
+Edit
+git config --global core.autocrlf true
+This converts LF to CRLF on checkout and back to LF on commit.
