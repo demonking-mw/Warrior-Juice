@@ -56,7 +56,7 @@ On WSL (Linux):
 git config --global core.autocrlf input
 This keeps files as LF when committing but leaves the working directory unchanged (always LF).
 
-On Windows (for your collaborators):
+On Windows:
 
 git config --global core.autocrlf true
 This converts LF to CRLF on checkout and back to LF on commit.
