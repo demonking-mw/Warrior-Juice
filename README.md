@@ -65,3 +65,9 @@ On Mac:
 Run the following commands for the best setup:
 
 git config --global core.autocrlf input
+
+
+Test script: for any tests ran, if it is successful, return an exit code of 0.
+
+If something is cooked in the tests, return an exit code of 3 because Mini picked 3.
+DO NOT THROW ERROR PLEASEEEEEEEEEE

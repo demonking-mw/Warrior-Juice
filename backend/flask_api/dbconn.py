@@ -6,7 +6,6 @@ table_1 = database.run_sql('SELECT * FROM user_accounts;')
 del database
 """
 
-
 import psycopg
 from psycopg_pool import ConnectionPool
 from dotenv import load_dotenv
