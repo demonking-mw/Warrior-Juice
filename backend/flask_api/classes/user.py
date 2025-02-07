@@ -23,16 +23,16 @@ class User(Resource):
         sql_query = (
             f"SELECT * FROM user_accounts WHERE user_name = '{args['user_name']}';"
         )
-        print("DEBUG: ", sql_query)
         try:
             table_1 = database.run_sql(sql_query)
             database.close()
         except psycopg.errors.UndefinedColumn as e:
+            database.close()
             return {
                 "status": False,
                 "detail": {"status": "user not found", "detail": e},
             }, 400
-        if not user_info:
+        if not table_1:
             return {"status": False, "detail": {"status": "user not found"}}, 400
         if table_1 and table_1[0]["pwd"] == args["pwd"]:
             return {"status": True, "detail": table_1[0]}, 200
@@ -46,7 +46,7 @@ class User(Resource):
         """
         args = input_req.user_regis.parse_args()
         database = dbconn.DBConn()
-        sql_query = f"INSERT INTO user_accounts VALUES('{args['user_name']}', '{args["pwd"]}', '{args["email"]}', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb)"
+        sql_query = f"INSERT INTO user_accounts VALUES('{args['user_name']}', '{args['pwd']}', '{args['email']}', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb)"
         try:
             database.run_sql(sql_query)
             database.close()
