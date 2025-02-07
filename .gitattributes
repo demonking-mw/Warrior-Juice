@@ -1,0 +1,8 @@
+# Handle text files and enforce LF in the repository
+* text=auto
+
+# Explicitly set line endings for common file types
+*.sh text eol=lf
+*.py text eol=lf
+*.bat text eol=crlf
+*.md text eol=lf
