@@ -64,6 +64,7 @@ class User(Resource):
         To avoid confusion, only one action can be performed at a time
         Operation logic: old password is mandatory for changing email, optional for changing password
         Auth can be used to change password
+        Action: change, mod_tier, delete
         """
         args = input_req.user_modify.parse_args()
         database = dbconn.DBConn()
@@ -158,6 +159,29 @@ class User(Resource):
             else:
                 database.close()
                 return {"status": False, "detail": {"status": "auth failed"}}, 400
+        elif args["action"] == "delete":
+            # password is mandatory for deleting account, add auth later
+            if user_info and user_info[0]["pwd"] == args["pwd"]:
+                sql_query = f"DELETE FROM user_accounts WHERE user_name = '{args['user_name']}';"
+                try:
+                    database.run_sql(sql_query)
+                    database.close()
+                except Exception as e:
+                    database.close()
+                    return {
+                        "status": False,
+                        "detail": {"status": "error deleting user", "detail": e},
+                    }, 400
+                return {
+                    "status": True,
+                    "detail": {"status": f"user '{args['user_name']}' deleted", "detail": user_info},
+                }, 200
+            else:
+                database.close()
+                return {
+                    "status": False,
+                    "detail": {"status": "password incorrect, not deleted"},
+                }, 400
         else:
             database.close()
             return {"status": False, "detail": {"status": "unknown action"}}, 400

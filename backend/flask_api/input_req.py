@@ -34,7 +34,7 @@ user_modify = reqparse.RequestParser()
 user_modify.add_argument(
     "action",
     type=str,
-    help="Action is required, can be change or mod_tier or ...",
+    help="Action is required, can be change or mod_tier or delete",
     required=True,
 )
 user_modify.add_argument(

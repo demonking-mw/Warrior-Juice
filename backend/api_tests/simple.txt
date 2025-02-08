@@ -1,1 +1,2 @@
-user_test
+user_add_drop_test
+user_get_test
