@@ -210,3 +210,8 @@ class Activity(Resource):
                 "failed": failed_users,
             },
         }, 201
+
+    def put(self):
+        '''
+        Update a task, for subtask tree, a new tree is required
+        '''

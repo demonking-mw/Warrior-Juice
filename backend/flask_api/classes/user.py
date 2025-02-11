@@ -30,7 +30,7 @@ class User(Resource):
             database.close()
             return {
                 "status": False,
-                "detail": {"status": "user not found", "detail": e},
+                "detail": {"status": "user not found", "detail": str(e)},
             }, 400
         if not table_1:
             return {"status": False, "detail": {"status": "user not found"}}, 400
@@ -55,7 +55,7 @@ class User(Resource):
             database.close()
             return {
                 "status": False,
-                "detail": {"status": "user already exists", "detail": e},
+                "detail": {"status": "user already exists", "detail": str(e)},
             }, 200
 
     def put(self):
@@ -64,7 +64,8 @@ class User(Resource):
         To avoid confusion, only one action can be performed at a time
         Operation logic: old password is mandatory for changing email, optional for changing password
         Auth can be used to change password
-        Action: change, mod_tier, delete
+        Purge: delete every activity that DNE
+        Action: change, mod_tier, delete, (upcoming) purge
         """
         args = input_req.user_modify.parse_args()
         database = dbconn.DBConn()
@@ -79,7 +80,7 @@ class User(Resource):
             database.close()
             return {
                 "status": False,
-                "detail": {"status": "user not found", "detail": e},
+                "detail": {"status": "user not found", "detail": str(e)},
             }, 400
         if not user_info:
             database.close()
@@ -170,7 +171,7 @@ class User(Resource):
                     database.close()
                     return {
                         "status": False,
-                        "detail": {"status": "error deleting user", "detail": e},
+                        "detail": {"status": "error deleting user", "detail": str(e)},
                     }, 400
                 return {
                     "status": True,
@@ -178,6 +179,37 @@ class User(Resource):
                 }, 200
             else:
                 database.close()
+                return {
+                    "status": False,
+                    "detail": {"status": "password incorrect, not deleted"},
+                }, 400
+        elif args["action"] == "purge":
+            # delete all activities that DNE
+            if user_info and user_info[0]["pwd"] == args["pwd"]:
+                activities_list = user_info[0]["activities"]
+                for activity_id in activities_list:
+                    sql_query = f"SELECT * FROM activity WHERE act_id = '{activity_id}';"
+                    try:
+                        act = database.run_sql(sql_query)
+                        if not act:
+                            activities_list.remove(activity_id)
+                    except psycopg.errors.UndefinedColumn as e:
+                        activities_list.remove(activity_id)
+                sql_query = f"UPDATE user_accounts SET activities = '{activities_list}' WHERE user_name = '{args['user_name']}';"
+                try:
+                    database.run_sql(sql_query)
+                    database.close()
+                except Exception as e:
+                    database.close()
+                    return {
+                        "status": False,
+                        "detail": {"status": "error purging activities", "detail": str(e)},
+                    }, 400
+                return {
+                    "status": True,
+                    "detail": {"status": "purged activities", "detail": activities_list},
+                }, 200
+            else:
                 return {
                     "status": False,
                     "detail": {"status": "password incorrect, not deleted"},
