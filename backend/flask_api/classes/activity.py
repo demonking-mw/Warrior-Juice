@@ -219,3 +219,114 @@ class Activity(Resource):
         """
         Update a task, for subtask tree, a new tree is required
         """
+        args = input_req.activity_modify.parse_args()
+        database = dbconn.DBConn()
+        # Get the activity and confirm the user has access to actions
+
+        sql_query = f"SELECT * FROM activity WHERE act_id = '{args['act_id']}';"
+        try:
+            act = database.run_sql(sql_query)
+            if not act:
+                database.close()
+                return {
+                    "status": False,
+                    "detail": {"status": "activity not found"},
+                }, 400
+        except psycopg.errors.UndefinedColumn as e:
+            database.close()
+            return {
+            "status": False,
+            "detail": {"status": "activity not found", "detail": e},
+            }, 400
+        if args["user_name"] not in unf.user_flatten(act[0]["user_name"]):
+            database.close()
+            return {
+                "status": False,
+                "detail": {"status": "user does not have access to activity"},
+            }, 400
+        # At this point, the user has access to the activity
+        # Check if user_name is in admin_user_name array
+        admin_access = True
+        if args["user_name"] not in act[0]["admin_user_name"]:
+            admin_access = False
+        # Update the activity
+        if args["action"] == "update":
+            # Update the activity
+            columns = []
+            values = []
+            params = []
+            if args.get("act_title"):
+                columns.append("act_title")
+                values.append("%s")
+                params.append(args["act_title"])
+            if args.get("act_type"):
+                columns.append("act_type")
+                values.append("%s")
+                params.append(args["act_type"])
+            if args.get("due_date"):
+                columns.append("due_date")
+                values.append("%s")
+                params.append(args["due_date"])
+            if args.get("act_brief"):
+                columns.append("act_brief")
+                values.append("%s")
+                params.append(args["act_brief"])
+            if args.get("aux_info"):
+                columns.append("act_aux_info")
+                values.append("%s")
+                params.append(json.dumps(args["aux_info"]))
+            if args.get("task_tree"):
+                columns.append("tasks_tree")
+                values.append("%s")
+                params.append(json.dumps(args["task_tree"]))
+            # Permission required for below fields
+            if args.get("user_name_tree") and admin_access:
+                columns.append("user_name_tree")
+                values.append("%s")
+                params.append(json.dumps(args["user_name_tree"]))
+            if args.get("admin_user_name") and admin_access:
+                columns.append("admin_user_name")
+                values.append("%s")
+                params.append(json.dumps(args["admin_user_name"]))
+            if len(columns) == 0:
+                database.close()
+                return {
+                    "status": False,
+                    "detail": {"status": "no fields to update", "admin_access": admin_access},
+                }, 400
+            sql_query = f"""
+                UPDATE activity
+                SET {', '.join([f'{col} = %s' for col in columns])}
+                WHERE act_id = '{args['act_id']}';
+            """
+            try:
+                database.run_sql(sql_query, params)
+            except Exception as e:
+                database.close()
+                return {
+                    "status": False,
+                    "detail": {"status": "activity update failed", "detail": str(e)},
+                }, 400
+            database.close()
+            return {
+                "status": True,
+                "detail": {"status": "activity updated", "admin_access": admin_access},
+            }, 200
+        elif args["action"] == "delete":
+            # Delete the activity
+            if admin_access:
+                sql_query = f"DELETE FROM activity WHERE act_id = '{args['act_id']}';"
+                try:
+                    database.run_sql(sql_query)
+                    database.close()
+                except Exception as e:
+                    database.close()
+                    return {
+                        "status": False,
+                        "detail": {"status": "activity deletion failed", "detail": str(e)},
+                    }, 400
+                return {
+                    "status": True,
+                    "detail": {"status": "activity deleted", "user_name_tree": act[0]["user_name"], "admin_list": act[0]["admin_user_name"]},
+                }, 200
+                # Purge should be calle separately
