@@ -76,6 +76,9 @@ activity_create.add_argument(
 activity_create.add_argument(
     "user_name", type=dict, help="User name tree is required", required=True
 )
+activity_create.add_argument(
+    "admin_user_name", type=list, help="admin name list is required", required=True
+)
 activity_create.add_argument("act_type", type=str, help="Activity type", required=False)
 activity_create.add_argument(
     "due_date",
@@ -94,4 +97,16 @@ activity_create.add_argument(
     type=dict,
     help="tree of all subtask ids, value for each entry being the title of the task",
     required=False,
+)
+
+activity_modify = reqparse.RequestParser()
+activity_modify.add_argument(
+    "action",
+    type=str,
+    help="Action is required, can be change or delete",
+    required=True,
+)
+activity_modify.add_argument("act_id", type=int, help="Activity id", required=True)
+activity_modify.add_argument(
+    "user_id", type=str, help="user_id is required", required=True
 )

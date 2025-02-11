@@ -5,11 +5,7 @@ BASE = "http://127.0.0.1:5000"
 
 response = requests.post(
     BASE + "/user",
-    json={
-        "user_name": "jocelyn",
-        "pwd": "100",
-        "email": "juice@workaholic.lol"
-    },
+    json={"user_name": "jocelyn", "pwd": "100", "email": "juice@workaholic.lol"},
     timeout=35,
 )
 if response.json().get("status"):
@@ -26,7 +22,7 @@ if response.json().get("status"):
     if del_response.json().get("status"):
         print("deleted")
         sys.exit(0)
-    else: 
+    else:
         print("delete failed")
         print(del_response.json())
         sys.exit(3)
@@ -34,4 +30,3 @@ else:
     print("create failed")
     print(response.json())
     sys.exit(3)
-    
