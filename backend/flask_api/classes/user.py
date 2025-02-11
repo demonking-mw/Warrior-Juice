@@ -6,6 +6,7 @@ from flask import Flask
 from flask_restful import Api, Resource, reqparse
 import psycopg
 from backend.flask_api import dbconn, input_req
+from backend.logic_classes import user_name_flatten as unf
 
 
 class User(Resource):
@@ -175,7 +176,10 @@ class User(Resource):
                     }, 400
                 return {
                     "status": True,
-                    "detail": {"status": f"user '{args['user_name']}' deleted", "detail": user_info},
+                    "detail": {
+                        "status": f"user '{args['user_name']}' deleted",
+                        "detail": user_info,
+                    },
                 }, 200
             else:
                 database.close()
@@ -188,10 +192,16 @@ class User(Resource):
             if user_info and user_info[0]["pwd"] == args["pwd"]:
                 activities_list = user_info[0]["activities"]
                 for activity_id in activities_list:
-                    sql_query = f"SELECT * FROM activity WHERE act_id = '{activity_id}';"
+                    sql_query = (
+                        f"SELECT * FROM activity WHERE act_id = '{activity_id}';"
+                    )
                     try:
                         act = database.run_sql(sql_query)
                         if not act:
+                            activities_list.remove(activity_id)
+                        act_user_list = unf.user_flatten(act[0]["user_name"])
+                        if args["user_name"] not in act_user_list:
+                            # user does not have access to this activity
                             activities_list.remove(activity_id)
                     except psycopg.errors.UndefinedColumn as e:
                         activities_list.remove(activity_id)
@@ -203,11 +213,17 @@ class User(Resource):
                     database.close()
                     return {
                         "status": False,
-                        "detail": {"status": "error purging activities", "detail": str(e)},
+                        "detail": {
+                            "status": "error purging activities",
+                            "detail": str(e),
+                        },
                     }, 400
                 return {
                     "status": True,
-                    "detail": {"status": "purged activities", "detail": activities_list},
+                    "detail": {
+                        "status": "purged activities",
+                        "detail": activities_list,
+                    },
                 }, 200
             else:
                 return {

@@ -128,9 +128,13 @@ class Activity(Resource):
         args = input_req.activity_create.parse_args()
 
         # Define the columns and corresponding values
-        columns = ["act_title", "user_name"]
-        values = ["%s", "%s"]
-        params = [args["act_title"], json.dumps(args["user_name"])]
+        columns = ["act_title", "user_name", "admin_user_name"]
+        values = ["%s", "%s", "%s"]
+        params = [
+            args["act_title"],
+            json.dumps(args["user_name"]),
+            json.dumps(args["admin_user_name"]),
+        ]
 
         if args.get("act_type"):
             columns.append("act_type")
@@ -212,6 +216,6 @@ class Activity(Resource):
         }, 201
 
     def put(self):
-        '''
+        """
         Update a task, for subtask tree, a new tree is required
-        '''
+        """
