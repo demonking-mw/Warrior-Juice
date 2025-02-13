@@ -1,6 +1,8 @@
-'''
+"""
 parse a list of arguments and put them into columns, values, and params
-'''
+"""
+
+
 def qparser(targets: list, args: dict) -> tuple[list, list, list]:
     """
     Parse a list of arguments and put them into columns, values, and params

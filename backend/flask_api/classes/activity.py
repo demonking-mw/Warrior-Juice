@@ -212,8 +212,8 @@ class Activity(Resource):
         except psycopg.errors.UndefinedColumn as e:
             database.close()
             return {
-            "status": False,
-            "detail": {"status": "activity not found", "detail": e},
+                "status": False,
+                "detail": {"status": "activity not found", "detail": e},
             }, 400
         if args["user_name"] not in unf.user_flatten(act[0]["user_name"]):
             database.close()
@@ -230,9 +230,12 @@ class Activity(Resource):
         if args["action"] == "update":
             # Update the activity
             put_targets = [
-                "act_title", "act_type", 
-                "due_date", "act_brief", 
-                "aux_info", "task_tree"
+                "act_title",
+                "act_type",
+                "due_date",
+                "act_brief",
+                "aux_info",
+                "task_tree",
             ]
             columns, values, params = build_qparser.qparser(put_targets, args)
             # Permission required for below fields
@@ -248,7 +251,10 @@ class Activity(Resource):
                 database.close()
                 return {
                     "status": False,
-                    "detail": {"status": "no fields to update", "admin_access": admin_access},
+                    "detail": {
+                        "status": "no fields to update",
+                        "admin_access": admin_access,
+                    },
                 }, 400
             sql_query = f"""
                 UPDATE activity
@@ -279,11 +285,18 @@ class Activity(Resource):
                     database.close()
                     return {
                         "status": False,
-                        "detail": {"status": "activity deletion failed", "detail": str(e)},
+                        "detail": {
+                            "status": "activity deletion failed",
+                            "detail": str(e),
+                        },
                     }, 400
                 return {
                     "status": True,
-                    "detail": {"status": "activity deleted", "user_name_tree": act[0]["user_name"], "admin_list": act[0]["admin_user_name"]},
+                    "detail": {
+                        "status": "activity deleted",
+                        "user_name_tree": act[0]["user_name"],
+                        "admin_list": act[0]["admin_user_name"],
+                    },
                 }, 200
                 # Purge should be calle separately
         else:
