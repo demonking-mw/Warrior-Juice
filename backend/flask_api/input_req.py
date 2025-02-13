@@ -5,12 +5,10 @@ classname_action
 Commenting:
 what for, what is required
 """
-
+# pylint: disable=import-error
 from flask_restful import reqparse
 
-"""
-User reqs
-"""
+# User Reqs
 #######################################################################################
 # user login: user_name and pwd
 user_login = reqparse.RequestParser()
@@ -50,9 +48,7 @@ user_modify.add_argument(
 #######################################################################################
 
 
-"""
-Activity reqs
-"""
+# Activity Reqs
 #######################################################################################
 # get activity: user_name(optional), activity_id(optional)
 activity_get = reqparse.RequestParser()

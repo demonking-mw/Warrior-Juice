@@ -1,7 +1,7 @@
 """
 Operations around activities
 """
-
+# pylint: disable=import-error
 import json
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
@@ -35,7 +35,9 @@ class Activity(Resource):
                         "status": "get_all requires user, but no user was given"
                     },
                 }, 400
-            sql_query = f"SELECT user_act_list FROM user_accounts WHERE user_name = '{args['user_name']}';"
+            sql_query = (
+                f"SELECT user_act_list FROM user_accounts WHERE user_name = '{args['user_name']}';"
+            )
             try:
                 act_list = database.run_sql(sql_query)
             except psycopg.errors.UndefinedColumn as e:
@@ -59,7 +61,7 @@ class Activity(Resource):
                         all_activities.append(act[0])
                     else:
                         dne_activities.append(activity_id)
-                except psycopg.errors.UndefinedColumn as e:
+                except psycopg.errors.UndefinedColumn:
                     dne_activities.append(activity_id)
             database.close()
             if len(all_activities) != 0:
@@ -166,7 +168,7 @@ class Activity(Resource):
             sql_query = f"SELECT user_act_list FROM user_accounts WHERE user_name = '{user_name}';"
             try:
                 act_list = database.run_sql(sql_query)
-            except psycopg.errors.UndefinedColumn as e:
+            except psycopg.errors.UndefinedColumn:
                 failed_users.append(user_name)
                 continue
             if not act_list:
