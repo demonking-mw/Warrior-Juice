@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Must be ran at the repo root
-
+touch grass
 # Takes one input, which is the file name of the test suite to run.
 if [ ${#} -ne 1 ]; then
     echo "Usage: takes 1 argument: stem of test suite txt file" >&2

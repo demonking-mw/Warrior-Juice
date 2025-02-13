@@ -1,7 +1,7 @@
 """
 Operations around users
 """
-
+# pylint: disable=import-error
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 import psycopg
@@ -63,7 +63,8 @@ class User(Resource):
         """
         returns status as boolean of whether action is successful
         To avoid confusion, only one action can be performed at a time
-        Operation logic: old password is mandatory for changing email, optional for changing password
+        Operation logic: 
+        old password is mandatory for changing email, optional for changing password
         Auth can be used to change password
         Purge: delete every activity that DNE
         Action: change, mod_tier, delete, (upcoming) purge
@@ -136,7 +137,7 @@ class User(Resource):
                 return {
                     "status": True,
                     "detail": {
-                        "status": f"password changed for user '{args['user_name']}' after successful external auth"
+                        "status": f"password changed for user '{args['user_name']}'"
                     },
                 }, 200
             else:
@@ -203,7 +204,7 @@ class User(Resource):
                         if args["user_name"] not in act_user_list:
                             # user does not have access to this activity
                             activities_list.remove(activity_id)
-                    except psycopg.errors.UndefinedColumn as e:
+                    except psycopg.errors.UndefinedColumn:
                         activities_list.remove(activity_id)
                 sql_query = f"UPDATE user_accounts SET activities = '{activities_list}' WHERE user_name = '{args['user_name']}';"
                 try:

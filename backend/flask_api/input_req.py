@@ -5,12 +5,10 @@ classname_action
 Commenting:
 what for, what is required
 """
-
+# pylint: disable=import-error
 from flask_restful import reqparse
 
-"""
-User reqs
-"""
+# User Reqs
 #######################################################################################
 # user login: user_name and pwd
 user_login = reqparse.RequestParser()
@@ -50,9 +48,7 @@ user_modify.add_argument(
 #######################################################################################
 
 
-"""
-Activity reqs
-"""
+# Activity Reqs
 #######################################################################################
 # get activity: user_name(optional), activity_id(optional)
 activity_get = reqparse.RequestParser()
@@ -108,5 +104,35 @@ activity_modify.add_argument(
 )
 activity_modify.add_argument("act_id", type=int, help="Activity id", required=True)
 activity_modify.add_argument(
-    "user_id", type=str, help="user_id is required", required=True
+    "user_name", type=str, help="user_name is required", required=True
+)
+activity_modify.add_argument(
+    "act_type", type=str, help="type of activity", required=False
+)
+activity_modify.add_argument(
+    "user_name_tree", type=dict, help="user_name_tree", required=False
+)
+activity_modify.add_argument(
+    "admin_user_name", type=list, help="list of admin", required=False
+)
+activity_modify.add_argument(
+    "due_date",
+    type=str,
+    help="Due date in the form '2025-02-02 14:30:00'",
+    required=False,
+)
+activity_modify.add_argument(
+    "act_title", type=str, help="activity title", required=False
+)
+activity_modify.add_argument(
+    "act_brief", type=str, help="Activity brief, up to 256 char", required=False
+)
+activity_modify.add_argument(
+    "aux_info", type=dict, help="additional info for activity", required=False
+)
+activity_modify.add_argument(
+    "task_tree",
+    type=dict,
+    help="tree of all subtask ids, pre-defined slot uses -1",
+    required=False,
 )
