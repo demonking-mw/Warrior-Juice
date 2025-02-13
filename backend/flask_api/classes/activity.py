@@ -9,6 +9,7 @@ import psycopg
 
 from backend.flask_api import dbconn, input_req
 from backend.logic_classes import user_name_flatten as unf
+from backend.logic_classes import build_qparser
 
 
 class Activity(Resource):
@@ -128,39 +129,15 @@ class Activity(Resource):
         args = input_req.activity_create.parse_args()
 
         # Define the columns and corresponding values
-        columns = ["act_title", "user_name", "admin_user_name"]
-        values = ["%s", "%s", "%s"]
-        params = [
-            args["act_title"],
-            json.dumps(args["user_name"]),
-            json.dumps(args["admin_user_name"]),
-        ]
 
-        if args.get("act_type"):
-            columns.append("act_type")
-            values.append("%s")
-            params.append(args["act_type"])
+        post_targets = ["act_type", "due_date", "act_brief", "aux_info", "task_tree"]
+        columns, values, params = build_qparser.qparser(post_targets, args)
 
-        if args.get("due_date"):
-            columns.append("due_date")
-            values.append("%s")
-            params.append(args["due_date"])
-
-        if args.get("act_brief"):
-            columns.append("act_brief")
-            values.append("%s")
-            params.append(args["act_brief"])
-
-        if args.get("aux_info"):
-            columns.append("act_aux_info")
-            values.append("%s")
-            params.append(json.dumps(args["aux_info"]))
-
-        if args.get("task_tree"):
-            columns.append("tasks_tree")
-            values.append("%s")
-            params.append(json.dumps(args["task_tree"]))
-
+        columns.extend(["act_title", "user_name", "admin_user_name"])
+        values.extend(["%s", "%s", "%s"])
+        params.append(args["act_title"])
+        params.append(json.dumps(args["user_name"]))
+        params.append(json.dumps(args["admin_user_name"]))
         # Generate SQL query
         sql_query = f"""
             INSERT INTO activity ({', '.join(columns)})
@@ -252,33 +229,12 @@ class Activity(Resource):
         # Update the activity
         if args["action"] == "update":
             # Update the activity
-            columns = []
-            values = []
-            params = []
-            if args.get("act_title"):
-                columns.append("act_title")
-                values.append("%s")
-                params.append(args["act_title"])
-            if args.get("act_type"):
-                columns.append("act_type")
-                values.append("%s")
-                params.append(args["act_type"])
-            if args.get("due_date"):
-                columns.append("due_date")
-                values.append("%s")
-                params.append(args["due_date"])
-            if args.get("act_brief"):
-                columns.append("act_brief")
-                values.append("%s")
-                params.append(args["act_brief"])
-            if args.get("aux_info"):
-                columns.append("act_aux_info")
-                values.append("%s")
-                params.append(json.dumps(args["aux_info"]))
-            if args.get("task_tree"):
-                columns.append("tasks_tree")
-                values.append("%s")
-                params.append(json.dumps(args["task_tree"]))
+            put_targets = [
+                "act_title", "act_type", 
+                "due_date", "act_brief", 
+                "aux_info", "task_tree"
+            ]
+            columns, values, params = build_qparser.qparser(put_targets, args)
             # Permission required for below fields
             if args.get("user_name_tree") and admin_access:
                 columns.append("user_name_tree")
@@ -330,3 +286,10 @@ class Activity(Resource):
                     "detail": {"status": "activity deleted", "user_name_tree": act[0]["user_name"], "admin_list": act[0]["admin_user_name"]},
                 }, 200
                 # Purge should be calle separately
+        else:
+            # Invalid action
+            database.close()
+            return {
+                "status": False,
+                "detail": {"status": "invalid action"},
+            }, 400
