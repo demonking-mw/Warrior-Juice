@@ -5,6 +5,8 @@ import { useState } from "react";
 import { UserIcon, LockIcon } from "lucide-react";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/_components/elements/button";
 import { Input } from "@/_components/elements/input";
@@ -15,12 +17,30 @@ const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [googleCredential, setGoogleCredential] = useState("");
+  const [googleCredential, setGoogleCredential] = useState();
+  const router = useRouter();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // Implement login logic here
     console.log("Login attempted with:", { username, password, rememberMe });
+  };
+  const handleGoogleLoginSuccess = (credentialResponse: any) => {
+    if (credentialResponse.credential) {
+      const decodedCredential = jwtDecode<any>(credentialResponse.credential);
+      const currentTime = Math.floor(Date.now() / 1000);
+      const { iat, exp } = decodedCredential;
+      // Check if the credential is timely
+      if (currentTime < iat || currentTime > exp) {
+        console.log("Credential is not valid: expired or issued in the future");
+      } else {
+        setGoogleCredential(decodedCredential);
+        console.log(decodedCredential);
+        router.push("/authredirect/landing"); // Redirects to /dashboard
+      }
+    } else {
+      console.log("Credential is undefined");
+    }
   };
 
   return (
@@ -58,15 +78,7 @@ const LoginPage: React.FC = () => {
           </div>
           <div className="mx-auto flex w-2/3 items-center justify-center rounded-lg border border-black p-4">
             <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                if (credentialResponse.credential) {
-                    setGoogleCredential(jwtDecode(credentialResponse.credential));
-                    console.log(jwtDecode(credentialResponse.credential));
-                } else {
-                  console.log("Credential is undefined");
-                }
-                
-              }}
+              onSuccess={handleGoogleLoginSuccess}
               onError={() => {
                 console.log("Login Failed");
               }}
