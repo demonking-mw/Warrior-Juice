@@ -21,7 +21,7 @@ export default async function Home() {
         </p>
         <div className="p-4 items-center space-y-4">
           <p>
-            <Link href="/dbcomm">Go to login</Link>
+            <Link href="/auth">Go to login</Link>
         </p>
         </div>
         
