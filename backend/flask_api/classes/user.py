@@ -14,50 +14,54 @@ class User(Resource):
     dbconn pooling not used, very slow for now
     deals with users
     """
-
-    def get(self):
-        """
-        gets the user details with username and password
-        """
-        args = input_req.user_login.parse_args()
-        database = dbconn.DBConn()
-        sql_query = (
-            f"SELECT * FROM user_accounts WHERE user_name = '{args['user_name']}';"
-        )
-        try:
-            table_1 = database.run_sql(sql_query)
-            database.close()
-        except psycopg.errors.UndefinedColumn as e:
-            database.close()
-            return {
-                "status": False,
-                "detail": {"status": "user not found", "detail": str(e)},
-            }, 400
-        if not table_1:
-            return {"status": False, "detail": {"status": "user not found"}}, 400
-        if table_1 and table_1[0]["pwd"] == args["pwd"]:
-            return {"status": True, "detail": table_1[0]}, 200
-        else:
-            return {"status": False, "detail": {"status": "password incorrect"}}
-
     def post(self):
         """
         creates a new user with username, email, and password
         no email varification, add here in the future
         """
-        args = input_req.user_regis.parse_args()
+        args = input_req.user_auth.parse_args()
         database = dbconn.DBConn()
-        sql_query = f"INSERT INTO user_accounts VALUES('{args['user_name']}', '{args['pwd']}', '{args['email']}', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb)"
+        sql_query = (
+            f"SELECT * FROM user_accounts WHERE uid = '{args['uid']}';"
+        )
         try:
-            database.run_sql(sql_query)
+            table_1 = database.run_sql(sql_query)
+            
+        except psycopg.errors.UndefinedColumn:
+            print("user not found")
+        if not table_1:
+            # User not found
+            if args['email'] is not None:
+                # Email was entered: create
+                sql_query = f"INSERT INTO user_accounts VALUES('{args['uid']}', '{args['user_name']}', '{args['pwd']}', '{args['email']}', {args['email_varified']}, 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb)"
+                # Perform creation with the email
+                try:
+                    database.run_sql(sql_query)
+                    database.close()
+                    return {"status": True, "detail": {"status": "user created"}}, 201
+                except psycopg.errors.UniqueViolation as e:
+                    database.close()
+                    return {
+                        "status": False,
+                        "detail": {"status": "user already exists", "detail": str(e)},
+                    }, 200
+            else:
+                database.close()
+                return {
+                    "status": False,
+                    "detail": {"status": "user not found and email not provided"},
+                }, 400
+        if table_1 and table_1[0]["pwd"] == args["pwd"]:
+            # User found and password correct
             database.close()
-            return {"status": True, "detail": {"status": "user created"}}, 201
-        except psycopg.errors.UniqueViolation as e:
+            return {"status": True, "detail": table_1[0]}, 200
+        if table_1 and table_1[0]["uid"] != args["user_name"]:
+            # User found with auth
             database.close()
-            return {
-                "status": False,
-                "detail": {"status": "user already exists", "detail": str(e)},
-            }, 200
+            return {"status": True, "detail": table_1[0]}, 200
+        else:
+            database.close()
+            return {"status": False, "detail": {"status": "password incorrect"}}
 
     def put(self):
         """

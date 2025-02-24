@@ -3,11 +3,12 @@ import requests
 
 BASE = "http://127.0.0.1:5000"
 
-response = requests.get(
+response = requests.post(
     BASE + "/user",
     json={
-        "user_name": "bob",
-        "pwd": "password",
+        "uid": "juice",
+        "user_name": "jocelyn",
+        "pwd": "",
     },
     timeout=35,
 )

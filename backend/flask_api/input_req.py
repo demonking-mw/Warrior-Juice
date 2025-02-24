@@ -13,7 +13,7 @@ from flask_restful import reqparse
 # user login: user_name and pwd
 user_login = reqparse.RequestParser()
 user_login.add_argument(
-    "user_name", type=str, help="User name is required", required=True
+    "uid", type=str, help="User name is required", required=True
 )
 user_login.add_argument("pwd", type=str, help="Password is required", required=True)
 
@@ -25,6 +25,22 @@ user_regis.add_argument(
 )
 user_regis.add_argument("email", type=str, help="Email is required", required=True)
 user_regis.add_argument("pwd", type=str, help="Password is required", required=True)
+
+# User Auth
+# Replacing Login and Regis
+#######################################################################################
+user_auth = reqparse.RequestParser()
+user_auth.add_argument(
+    "uid", type=str, help="User ID is required", required=True
+)
+user_auth.add_argument(
+    "user_name", type=str, help="User name is required", required=True
+)
+user_auth.add_argument("pwd", type=str, help="Password is required", required=True)
+user_auth.add_argument("email", type=str, help="Sign up: email; Sign in: no email", required=False)
+user_auth.add_argument(
+    "email_varified", type=bool, help="whether email is pre-varified with auth provider", required=False, default=False
+)
 
 
 # modify user: username, pwd(not mandatory), new_pwd, email, tier, detail
