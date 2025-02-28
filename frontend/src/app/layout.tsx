@@ -6,8 +6,6 @@ import { type Metadata } from "next";
 import { TRPCReactProvider } from "~/trpc/react";
 import Link from "next/link";
 
-import logo from "../images/icon.png";
-
 function Header() {
   return (
     <header className ="bg-black py-1">
@@ -25,7 +23,7 @@ function Header() {
             </Link>
           </div>
           <div>
-            <Link href="/testroute">
+            <Link href="/About">
             Route
             </Link>
           </div>
