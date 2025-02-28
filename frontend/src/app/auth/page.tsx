@@ -36,7 +36,8 @@ const LoginPage: React.FC = () => {
       } else {
         setGoogleCredential(decodedCredential);
         console.log(decodedCredential);
-        router.push("/authredirect/landing"); // Redirects to /dashboard
+        // send the jwt to backend for login
+        router.push("/authredirect/landing"); // Redirects to /dashboard, to be replaced
       }
     } else {
       console.log("Credential is undefined");
