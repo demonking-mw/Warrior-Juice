@@ -26,7 +26,7 @@ const LoginPage: React.FC = () => {
     // Implement login logic here
     console.log("Login attempted with:", { username, password, rememberMe });
   };
-  const handleGoogleLoginSuccess = (credentialResponse: any) => {
+  const handleGoogleLoginSuccess = async (credentialResponse: any) => {
     if (credentialResponse.credential) {
       const decodedCredential = jwtDecode<any>(credentialResponse.credential);
       const currentTime = Math.floor(Date.now() / 1000);
@@ -39,7 +39,7 @@ const LoginPage: React.FC = () => {
         console.log(decodedCredential);
         // send the jwt to backend for login
         try {
-          const response = api.post("/users", {
+          const response = await api.post("/user", {
             type: "go",
             jwt_token: credentialResponse.credential,
           });
