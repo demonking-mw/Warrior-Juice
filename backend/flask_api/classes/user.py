@@ -1,6 +1,7 @@
 """
 Operations around users
 """
+
 # pylint: disable=import-error
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
@@ -14,6 +15,7 @@ class User(Resource):
     dbconn pooling not used, very slow for now
     deals with users
     """
+
     def post(self):
         """
         creates a new user with username, email, and password
@@ -21,17 +23,15 @@ class User(Resource):
         """
         args = input_req.user_auth.parse_args()
         database = dbconn.DBConn()
-        sql_query = (
-            f"SELECT * FROM user_accounts WHERE uid = '{args['uid']}';"
-        )
+        sql_query = f"SELECT * FROM user_accounts WHERE uid = '{args['uid']}';"
         try:
             table_1 = database.run_sql(sql_query)
-            
+
         except psycopg.errors.UndefinedColumn:
             print("user not found")
         if not table_1:
             # User not found
-            if args['email'] is not None:
+            if args["email"] is not None:
                 # Email was entered: create
                 sql_query = f"INSERT INTO user_accounts VALUES('{args['uid']}', '{args['user_name']}', '{args['pwd']}', '{args['email']}', {args['email_varified']}, 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb)"
                 # Perform creation with the email
@@ -67,7 +67,7 @@ class User(Resource):
         """
         returns status as boolean of whether action is successful
         To avoid confusion, only one action can be performed at a time
-        Operation logic: 
+        Operation logic:
         old password is mandatory for changing email, optional for changing password
         Auth can be used to change password
         Purge: delete every activity that DNE

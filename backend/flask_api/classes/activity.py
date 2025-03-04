@@ -1,6 +1,7 @@
 """
 Operations around activities
 """
+
 # pylint: disable=import-error
 import json
 from flask import Flask
@@ -35,9 +36,7 @@ class Activity(Resource):
                         "status": "get_all requires user, but no user was given"
                     },
                 }, 400
-            sql_query = (
-                f"SELECT user_act_list FROM user_accounts WHERE user_name = '{args['user_name']}';"
-            )
+            sql_query = f"SELECT user_act_list FROM user_accounts WHERE user_name = '{args['user_name']}';"
             try:
                 act_list = database.run_sql(sql_query)
             except psycopg.errors.UndefinedColumn as e:

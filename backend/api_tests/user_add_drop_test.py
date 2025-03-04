@@ -5,7 +5,12 @@ BASE = "http://127.0.0.1:5000"
 
 response = requests.post(
     BASE + "/user",
-    json={"uid": "juice", "user_name": "jocelyn", "pwd": "", "email": "juice@workaholic.lol"},
+    json={
+        "uid": "juice",
+        "user_name": "jocelyn",
+        "pwd": "",
+        "email": "juice@workaholic.lol",
+    },
     timeout=35,
 )
 if response.json().get("status"):
