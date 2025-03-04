@@ -12,6 +12,7 @@ import { Button } from "@/_components/elements/button";
 import { Input } from "@/_components/elements/input";
 import { Checkbox } from "@/_components/elements/checkbox";
 import { set } from "zod";
+import api from "@/_components/api_conn";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -37,6 +38,15 @@ const LoginPage: React.FC = () => {
         setGoogleCredential(decodedCredential);
         console.log(decodedCredential);
         // send the jwt to backend for login
+        try {
+          const response = api.post("/users", {
+            type: "go",
+            jwt_token: credentialResponse.credential,
+          });
+          console.log("User created:", response);
+        } catch (err) {
+          console.error("Error creating user:", err);
+        }
         router.push("/authredirect/landing"); // Redirects to /dashboard, to be replaced
       }
     } else {
