@@ -35,6 +35,9 @@ user_auth.add_argument(
     help="Type is required, can be eup or go",
     required=True,
 )
+user_auth.add_argument(
+    "jwt_token", type=str, help="JWT token for go type", required=False, default=None
+)
 # If eup, action is also required
 # if go, jwt_token is required
 

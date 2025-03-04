@@ -25,13 +25,19 @@ class User(Resource):
         args = input_req.user_auth.parse_args()
         if args['type'] == 'go':
             # google auth
-            if 'jwt_token' not in args:
+            if args.get('jwt_token') is None:
                 return {"status": False, "detail": {"status": "jwt_token missing"}}, 400
             auth_jwt = ga_ext.GoogleAuthExtract(args['jwt_token'])
             if not auth_jwt.authenticate():
                 return {"status": False, "detail": {"status": "auth failed, jwt not good"}}, 401
             # Got the jwt token and authed.
-            user_auth_obj = user_auth.UserAuth()
+            user_auth_obj = user_auth.UserAuth(auth_jwt.decoded)
+            user_auth_json, login_status = user_auth_obj.auth_go()
+            if login_status == -1:
+                print("ERROR: something is cooked for login")
+                return {"status": False, "detail": {"status": "info mismatch"}}, 400
+            else:
+                return user_auth_json, login_status
 
     def put(self):
         """

@@ -28,7 +28,7 @@ class GoogleAuthExtract:
         load_dotenv()
         authsecret = os.getenv("AUTH_SECRET")
         try:
-            self.decoded = jwt.decode(self.jwt_token, authsecret, algorithms=["HS256"])
+            self.decoded = jwt.decode(self.jwt_token, options={"verify_signature": False})
             return True
         except jwt.ExpiredSignatureError:
             print("Token has expired")
@@ -36,28 +36,3 @@ class GoogleAuthExtract:
         except jwt.InvalidTokenError:
             print("Invalid token")
             return False
-
-    def login(self) -> tuple[bool, dict]:
-        """
-        log in the user by returning required info
-        To log in: uid, pwd
-        return dict: {"uid": "naeem"}
-        """
-        if self.decoded is None:
-            return False, {}
-        return True, {"uid": self.decoded.get("sub")}
-        # sub is the unique identifier for the user
-
-    def signup(self) -> tuple[bool, dict]:
-        """
-        sign up the user by returning required info
-        To sign up: uid, pwd, email, user_name
-        return dict: {"uid": "naeem
-        """
-        if self.decoded is None:
-            return False, {}
-        return True, {
-            "email": self.decoded.get("email"),
-            "uid": self.decoded.get("sub"),
-            "user_name": self.decoded.get("name"),
-        }
