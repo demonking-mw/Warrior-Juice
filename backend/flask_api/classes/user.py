@@ -8,6 +8,8 @@ from flask_restful import Api, Resource, reqparse
 import psycopg
 from backend.flask_api import dbconn, input_req
 from backend.logic_classes import user_name_flatten as unf
+from backend.logic_classes import google_auth_extract as ga_ext
+from backend.logic_classes import user_auth
 
 
 class User(Resource):
@@ -18,50 +20,18 @@ class User(Resource):
 
     def post(self):
         """
-        creates a new user with username, email, and password
-        no email varification, add here in the future
+        Handles auth.
         """
         args = input_req.user_auth.parse_args()
-        database = dbconn.DBConn()
-        sql_query = f"SELECT * FROM user_accounts WHERE uid = '{args['uid']}';"
-        try:
-            table_1 = database.run_sql(sql_query)
-
-        except psycopg.errors.UndefinedColumn:
-            print("user not found")
-        if not table_1:
-            # User not found
-            if args["email"] is not None:
-                # Email was entered: create
-                sql_query = f"INSERT INTO user_accounts VALUES('{args['uid']}', '{args['user_name']}', '{args['pwd']}', '{args['email']}', {args['email_varified']}, 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb)"
-                # Perform creation with the email
-                try:
-                    database.run_sql(sql_query)
-                    database.close()
-                    return {"status": True, "detail": {"status": "user created"}}, 201
-                except psycopg.errors.UniqueViolation as e:
-                    database.close()
-                    return {
-                        "status": False,
-                        "detail": {"status": "user already exists", "detail": str(e)},
-                    }, 200
-            else:
-                database.close()
-                return {
-                    "status": False,
-                    "detail": {"status": "user not found and email not provided"},
-                }, 400
-        if table_1 and table_1[0]["pwd"] == args["pwd"]:
-            # User found and password correct
-            database.close()
-            return {"status": True, "detail": table_1[0]}, 200
-        if table_1 and table_1[0]["uid"] != args["user_name"]:
-            # User found with auth
-            database.close()
-            return {"status": True, "detail": table_1[0]}, 200
-        else:
-            database.close()
-            return {"status": False, "detail": {"status": "password incorrect"}}
+        if args['type'] == 'go':
+            # google auth
+            if 'jwt_token' not in args:
+                return {"status": False, "detail": {"status": "jwt_token missing"}}, 400
+            auth_jwt = ga_ext.GoogleAuthExtract(args['jwt_token'])
+            if not auth_jwt.authenticate():
+                return {"status": False, "detail": {"status": "auth failed, jwt not good"}}, 401
+            # Got the jwt token and authed.
+            user_auth_obj = user_auth.UserAuth()
 
     def put(self):
         """

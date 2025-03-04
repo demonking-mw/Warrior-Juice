@@ -13,11 +13,11 @@ class GoogleAuthExtract:
     Extract info, and return in a standard format
     """
 
-    def __init__(self, jwt):
+    def __init__(self, jwt_token: str) -> None:
         """
         stores the jwt token, potentially other things too
         """
-        self.jwt = jwt
+        self.jwt_token = jwt_token
         self.decoded = None
 
     def authenticate(self) -> bool:
@@ -28,7 +28,7 @@ class GoogleAuthExtract:
         load_dotenv()
         authsecret = os.getenv("AUTH_SECRET")
         try:
-            self.decoded = jwt.decode(self.jwt, authsecret, algorithms=["HS256"])
+            self.decoded = jwt.decode(self.jwt_token, authsecret, algorithms=["HS256"])
             return True
         except jwt.ExpiredSignatureError:
             print("Token has expired")
