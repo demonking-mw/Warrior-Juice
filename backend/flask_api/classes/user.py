@@ -3,7 +3,7 @@ Operations around users
 """
 
 # pylint: disable=import-error
-from flask import Flask
+from flask import Flask, make_response
 from flask_restful import Api, Resource, reqparse
 import psycopg
 from backend.flask_api import dbconn, input_req
