@@ -4,6 +4,7 @@ run from backend:
 python -m api_test.api_1
 """
 
+# pylint: disable=import-error
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 from .classes.user import User

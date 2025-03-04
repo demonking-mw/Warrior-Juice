@@ -1,26 +1,4 @@
 # Warrior-Juice
-Style Rules: for sample thing
-
-folder names:
-sample_thing
-
-file names:
-sameple_thing
-
-python: main classes: same as file name
-SampleThing
-
-functions:
-sample_thing
-
-variables: 
-sample_thing
-
-constants:
-SAMPLE_THING
-
-
-
 
 Rules:
 
@@ -65,3 +43,17 @@ On Mac:
 Run the following commands for the best setup:
 
 git config --global core.autocrlf input
+
+
+Test script: for any tests ran, if it is successful, return an exit code of 0.
+
+If something is cooked in the tests, return an exit code of 3 because Mini picked 3.
+DO NOT THROW ERROR PLEASEEEEEEEEEE
+
+
+
+Testing: 
+1. be in repo root directory
+2. ./testScripts/test_api.sh xxx
+3. replace xxx with the test sets you want to complete, an example is simple
+4. ignore the .txt suffix

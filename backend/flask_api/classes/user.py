@@ -2,10 +2,14 @@
 Operations around users
 """
 
+# pylint: disable=import-error
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 import psycopg
 from backend.flask_api import dbconn, input_req
+from backend.logic_classes import user_name_flatten as unf
+from backend.logic_classes import google_auth_extract as ga_ext
+from backend.logic_classes import user_auth
 
 
 class User(Resource):
@@ -14,56 +18,36 @@ class User(Resource):
     deals with users
     """
 
-    def get(self):
-        """
-        gets the user details with username and password
-        """
-        args = input_req.user_login.parse_args()
-        database = dbconn.DBConn()
-        sql_query = (
-            f"SELECT * FROM user_accounts WHERE user_name = '{args['user_name']}';"
-        )
-        try:
-            table_1 = database.run_sql(sql_query)
-            database.close()
-        except psycopg.errors.UndefinedColumn as e:
-            database.close()
-            return {
-                "status": False,
-                "detail": {"status": "user not found", "detail": e},
-            }, 400
-        if not table_1:
-            return {"status": False, "detail": {"status": "user not found"}}, 400
-        if table_1 and table_1[0]["pwd"] == args["pwd"]:
-            return {"status": True, "detail": table_1[0]}, 200
-        else:
-            return {"status": False, "detail": {"status": "password incorrect"}}
-
     def post(self):
         """
-        creates a new user with username, email, and password
-        no email varification, add here in the future
+        Handles auth.
         """
-        args = input_req.user_regis.parse_args()
-        database = dbconn.DBConn()
-        sql_query = f"INSERT INTO user_accounts VALUES('{args['user_name']}', '{args['pwd']}', '{args['email']}', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb)"
-        try:
-            database.run_sql(sql_query)
-            database.close()
-            return {"status": True, "detail": {"status": "user created"}}, 201
-        except psycopg.errors.UniqueViolation as e:
-            database.close()
-            return {
-                "status": False,
-                "detail": {"status": "user already exists", "detail": e},
-            }, 200
+        args = input_req.user_auth.parse_args()
+        if args['type'] == 'go':
+            # google auth
+            if args.get('jwt_token') is None:
+                return {"status": False, "detail": {"status": "jwt_token missing"}}, 400
+            auth_jwt = ga_ext.GoogleAuthExtract(args['jwt_token'])
+            if not auth_jwt.authenticate():
+                return {"status": False, "detail": {"status": "auth failed, jwt not good"}}, 401
+            # Got the jwt token and authed.
+            user_auth_obj = user_auth.UserAuth(auth_jwt.decoded)
+            user_auth_json, login_status = user_auth_obj.auth_go()
+            if login_status == -1:
+                print("ERROR: something is cooked for login")
+                return {"status": False, "detail": {"status": "info mismatch"}}, 400
+            else:
+                return user_auth_json, login_status
 
     def put(self):
         """
         returns status as boolean of whether action is successful
         To avoid confusion, only one action can be performed at a time
-        Operation logic: old password is mandatory for changing email, optional for changing password
+        Operation logic:
+        old password is mandatory for changing email, optional for changing password
         Auth can be used to change password
+        Purge: delete every activity that DNE
+        Action: change, mod_tier, delete, (upcoming) purge
         """
         args = input_req.user_modify.parse_args()
         database = dbconn.DBConn()
@@ -78,7 +62,7 @@ class User(Resource):
             database.close()
             return {
                 "status": False,
-                "detail": {"status": "user not found", "detail": e},
+                "detail": {"status": "user not found", "detail": str(e)},
             }, 400
         if not user_info:
             database.close()
@@ -133,7 +117,7 @@ class User(Resource):
                 return {
                     "status": True,
                     "detail": {
-                        "status": f"password changed for user '{args['user_name']}' after successful external auth"
+                        "status": f"password changed for user '{args['user_name']}'"
                     },
                 }, 200
             else:
@@ -158,6 +142,75 @@ class User(Resource):
             else:
                 database.close()
                 return {"status": False, "detail": {"status": "auth failed"}}, 400
+        elif args["action"] == "delete":
+            # password is mandatory for deleting account, add auth later
+            if user_info and user_info[0]["pwd"] == args["pwd"]:
+                sql_query = f"DELETE FROM user_accounts WHERE user_name = '{args['user_name']}';"
+                try:
+                    database.run_sql(sql_query)
+                    database.close()
+                except Exception as e:
+                    database.close()
+                    return {
+                        "status": False,
+                        "detail": {"status": "error deleting user", "detail": str(e)},
+                    }, 400
+                return {
+                    "status": True,
+                    "detail": {
+                        "status": f"user '{args['user_name']}' deleted",
+                        "detail": user_info,
+                    },
+                }, 200
+            else:
+                database.close()
+                return {
+                    "status": False,
+                    "detail": {"status": "password incorrect, not deleted"},
+                }, 400
+        elif args["action"] == "purge":
+            # delete all activities that DNE
+            if user_info and user_info[0]["pwd"] == args["pwd"]:
+                activities_list = user_info[0]["activities"]
+                for activity_id in activities_list:
+                    sql_query = (
+                        f"SELECT * FROM activity WHERE act_id = '{activity_id}';"
+                    )
+                    try:
+                        act = database.run_sql(sql_query)
+                        if not act:
+                            activities_list.remove(activity_id)
+                        act_user_list = unf.user_flatten(act[0]["user_name"])
+                        if args["user_name"] not in act_user_list:
+                            # user does not have access to this activity
+                            activities_list.remove(activity_id)
+                    except psycopg.errors.UndefinedColumn:
+                        activities_list.remove(activity_id)
+                sql_query = f"UPDATE user_accounts SET activities = '{activities_list}' WHERE user_name = '{args['user_name']}';"
+                try:
+                    database.run_sql(sql_query)
+                    database.close()
+                except Exception as e:
+                    database.close()
+                    return {
+                        "status": False,
+                        "detail": {
+                            "status": "error purging activities",
+                            "detail": str(e),
+                        },
+                    }, 400
+                return {
+                    "status": True,
+                    "detail": {
+                        "status": "purged activities",
+                        "detail": activities_list,
+                    },
+                }, 200
+            else:
+                return {
+                    "status": False,
+                    "detail": {"status": "password incorrect, not deleted"},
+                }, 400
         else:
             database.close()
             return {"status": False, "detail": {"status": "unknown action"}}, 400
