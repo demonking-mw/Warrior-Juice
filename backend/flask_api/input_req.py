@@ -38,6 +38,11 @@ user_auth.add_argument(
 user_auth.add_argument(
     "jwt_token", type=str, help="JWT token for go type", required=False, default=None
 )
+user_auth.add_argument("action", type=str, help="login/signup", required=False)
+user_auth.add_argument("email", type=str, help="Email", required=False)
+user_auth.add_argument("uid", type=str, help="User ID", required=False)
+user_auth.add_argument("pwd", type=str, help="Password", required=False)
+user_auth.add_argument("user_name", type=str, help="Name", required=False)
 # If eup, action is also required
 # if go, jwt_token is required
 

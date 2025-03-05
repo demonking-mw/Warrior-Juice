@@ -28,7 +28,9 @@ class GoogleAuthExtract:
         load_dotenv()
         authsecret = os.getenv("AUTH_SECRET")
         try:
-            self.decoded = jwt.decode(self.jwt_token, options={"verify_signature": False})
+            self.decoded = jwt.decode(
+                self.jwt_token, options={"verify_signature": False}
+            )
             return True
         except jwt.ExpiredSignatureError:
             print("Token has expired")

@@ -13,8 +13,13 @@ from .classes.activity import Activity
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+CORS(
+    app,
+    resources={r"/*": {"origins": "http://localhost:3000"}},
+    supports_credentials=True,
+)
 api = Api(app)
+
 
 @app.after_request
 def apply_cors_headers(response):
@@ -23,6 +28,7 @@ def apply_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, DELETE"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
     return response
+
 
 api.add_resource(User, "/user")
 api.add_resource(Activity, "/activity")
