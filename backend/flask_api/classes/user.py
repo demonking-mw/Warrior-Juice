@@ -59,6 +59,8 @@ class User(Resource):
         else:
             return {"status": False, "detail": {"status": "unknown type"}}, 400
 
+
+'''
     def put(self):
         """
         returns status as boolean of whether action is successful
@@ -235,3 +237,4 @@ class User(Resource):
         else:
             database.close()
             return {"status": False, "detail": {"status": "unknown action"}}, 400
+'''

@@ -5,6 +5,8 @@ Signup options: username/password/email (upe), email/password (ep), google oauth
 Note: email smtp not supported, yet
 
 On database: eup for email/username/password, go for google oauth
+
+Note: for each method, doccumentation of all possible result is mandatory
 """
 
 from flask_restful import Api, Resource, reqparse  # type: ignore
@@ -20,6 +22,15 @@ class UserAuth:
     should return a json for user info upon successful login/signup
     The status code is -1 when info is not provided properly
     SHOULD NOT HAPPEN if there is no bug.
+
+    Naming convention: X_Y
+    X: action such as login, signup, etc
+    Y: method (or req abbrievation)
+        go for google oauth
+        e for email
+        u for uid
+        p for pwd
+        n for user_name
     """
 
     def __init__(self, args: dict = None) -> None:
@@ -41,6 +52,8 @@ class UserAuth:
         success code start with
 
         The remaining tuple is the api_ready response
+
+        Expected result: success; user not found; wrongly authed; wrong password
         """
         if "uid" not in self.args or "pwd" not in self.args:
             print("ERROR: uid or pwd not provided")
@@ -58,11 +71,34 @@ class UserAuth:
         else:
             return {"status": False, "detail": {"status": "password incorrect"}}, 401
 
+    def signup_eupn(self) -> tuple[dict, int]:
+        """
+        signs up the user with email, uid, password (and name)
+
+        Expected result: success; uid unique violation
+        """
+        required_fields = ["uid", "pwd", "email", "user_name"]
+        if any(field not in self.args for field in required_fields):
+            print("ERROR: uid, pwd, email, or name not provided")
+            return {}, -1
+        database = dbconn.DBConn()
+        sql_query = f"INSERT INTO user_accounts VALUES('{self.args['uid']}', '{self.args['user_name']}', '{self.args['pwd']}', '{self.args['email']}', false, 'eup', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb, 0)"
+        try:
+            database.run_sql(sql_query)
+            database.close()
+            return {"status": True, "detail": {"status": "user created"}}, 201
+        except psycopg.errors.UniqueViolation:
+            database.close()
+            print("UID unique violation")
+            return {"status": False, "detail": {"status": "uid unique violation"}}, 409
+
     def auth_go(self) -> tuple[dict, int]:
         """
         logs in the user with google oauth
         success code start with
         The remaining tuple is the api_ready response
+
+        Expected result: success login; success signup; wrongly authed (upon login)
         """
         if "sub" not in self.args:
             print("ERROR: sub not provided")

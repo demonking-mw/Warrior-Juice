@@ -9,6 +9,7 @@ what for, what is required
 # pylint: disable=import-error
 from flask_restful import reqparse
 
+"""
 # User Reqs
 #######################################################################################
 # user login: user_name and pwd
@@ -24,7 +25,7 @@ user_regis.add_argument(
 )
 user_regis.add_argument("email", type=str, help="Email is required", required=True)
 user_regis.add_argument("pwd", type=str, help="Password is required", required=True)
-
+"""
 # User Auth
 # Replacing Login and Regis
 #######################################################################################
