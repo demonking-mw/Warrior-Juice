@@ -92,6 +92,30 @@ class UserAuth:
             print("UID unique violation")
             return {"status": False, "detail": {"status": "uid unique violation"}}, 409
 
+    def delete_eupn(self) -> tuple[dict, int]:
+        """
+        delete user with email, uid, password (and name)
+
+        Expected result: success; deletion failed (return specific error)
+        """
+        required_fields = ["uid", "pwd", "email", "user_name"]
+        if any(field not in self.args for field in required_fields):
+            print("ERROR: uid, pwd, email, or name not provided")
+            return {}, -1
+        database = dbconn.DBConn()
+        sql_query = f"DELETE FROM user_accounts WHERE uid = '{self.args['uid']}' AND pwd = '{self.args['pwd']}' AND email = '{self.args['email']}' AND user_name = '{self.args['user_name']}';"
+        try:
+            database.run_sql(sql_query)
+            database.close()
+            return {"status": True, "detail": {"status": "user deleted"}}, 200
+        except Exception as e:  # pylint: disable=broad-except
+            database.close()
+            print(f"ERROR: {e}")
+            return {
+                "status": False,
+                "detail": {"status": "deletion failed", "detail": str(e)},
+            }, 500
+
     def auth_go(self) -> tuple[dict, int]:
         """
         logs in the user with google oauth
