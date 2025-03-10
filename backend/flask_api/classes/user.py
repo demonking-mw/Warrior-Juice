@@ -4,17 +4,15 @@ Operations around users
 
 # pylint: disable=import-error
 from flask_restful import Resource
-import psycopg
-from backend.flask_api import dbconn, input_req
-from backend.logic_classes import user_name_flatten as unf
+from backend.flask_api import input_req
 from backend.logic_classes import google_auth_extract as ga_ext
 from backend.logic_classes import user_auth
 
 
 class User(Resource):
     """
-    dbconn pooling not used, very slow for now
-    deals with users
+    Handles the database side of user operations
+    Basically the implementation of user_auth.py
     """
 
     def post(self):
@@ -44,18 +42,23 @@ class User(Resource):
             # email user password auth
             if "action" not in args:
                 return {"status": False, "detail": {"status": "action missing"}}, 400
+
+            user_auth_obj = user_auth.UserAuth(args)
             if args["action"] == "login":
-                user_auth_obj = user_auth.UserAuth(args)
                 user_auth_json, login_status = user_auth_obj.login_up()
-                if login_status == -1:
-                    print("ERROR: something is cooked for login")
-                    return {"status": False, "detail": {"status": "info mismatch"}}, 400
-                else:
-                    return user_auth_json, login_status
             elif args["action"] == "signup":
-                pass
+                user_auth_json, login_status = user_auth_obj.signup_eupn()
+            elif args["action"] == "delete":
+                user_auth_json, login_status = user_auth_obj.delete_eupn()
             else:
                 return {"status": False, "detail": {"status": "unknown action"}}, 400
+
+            if login_status == -1:  # Login_status will be defined if this is reached
+                print("ERROR: something is cooked for login")
+                return {"status": False, "detail": {"status": "info mismatch"}}, 400
+            else:
+                return user_auth_json, login_status
+
         else:
             return {"status": False, "detail": {"status": "unknown type"}}, 400
 
