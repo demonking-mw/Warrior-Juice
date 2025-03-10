@@ -128,7 +128,7 @@ class User(Resource):
                         "status": False,
                         "detail": {"status": "old password incorrect"},
                     }, 400
-            elif True:  # pylint: disable=using-constant-test
+            elif True:  # pylint: disable=using-constant-test, pointless-statement
                 # For future: insert auth/email verification stuff in place of True
                 # Alternatively, use info in args["detail"] to authenticate
                 sql_query = f"UPDATE user_accounts SET pwd = '{args['new_pwd']}' WHERE user_name = '{args['user_name']}';"
@@ -147,7 +147,7 @@ class User(Resource):
                     "detail": {"status": "old password not provided and auth failed"},
                 }, 400
         elif args["action"] == "mod_tier":
-            if True:
+            if True:  # pylint: disable=using-constant-test
                 # For future: insert auth/email verification stuff in place of True
                 # Alternatively, use info in args["detail"] to authenticate
                 sql_query = f"UPDATE user_accounts SET acc_type = '{args['tier']}' WHERE user_name = '{args['user_name']}';"
@@ -169,7 +169,8 @@ class User(Resource):
                 try:
                     database.run_sql(sql_query)
                     database.close()
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-except
+                    # general exception catch, but returned as error message
                     database.close()
                     return {
                         "status": False,
@@ -210,7 +211,7 @@ class User(Resource):
                 try:
                     database.run_sql(sql_query)
                     database.close()
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-except
                     database.close()
                     return {
                         "status": False,

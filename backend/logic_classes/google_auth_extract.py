@@ -2,8 +2,7 @@
 parse google auth jwt to standard user auth 
 """
 
-import os
-import jwt
+import jwt  # pylint: disable=import-error
 
 from dotenv import load_dotenv
 
@@ -27,7 +26,7 @@ class GoogleAuthExtract:
         ASSUMPTION: google uses HS256; potential bug
         """
         load_dotenv()
-        authsecret = os.getenv("AUTH_SECRET")
+        # authsecret = os.getenv("AUTH_SECRET")
         try:
             self.decoded = jwt.decode(
                 self.jwt_token, options={"verify_signature": False}

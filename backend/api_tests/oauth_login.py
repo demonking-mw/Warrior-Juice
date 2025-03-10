@@ -1,6 +1,7 @@
-'''
+"""
 tests google oauth login with sample
-'''
+"""
+
 import sys
 import requests
 

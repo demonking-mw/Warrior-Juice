@@ -7,11 +7,9 @@ Note: email smtp not supported, yet
 On database: eup for email/username/password, go for google oauth
 """
 
-from flask import Flask
-from flask_restful import Api, Resource, reqparse
-import psycopg
+from flask_restful import Api, Resource, reqparse  # type: ignore
+import psycopg  # type: ignore
 from backend.flask_api import dbconn
-from .user_name_flatten import user_flatten
 
 
 class UserAuth:
