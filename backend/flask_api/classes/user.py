@@ -3,8 +3,7 @@ Operations around users
 """
 
 # pylint: disable=import-error
-from flask import Flask, make_response
-from flask_restful import Api, Resource, reqparse
+from flask_restful import Resource
 import psycopg
 from backend.flask_api import dbconn, input_req
 from backend.logic_classes import user_name_flatten as unf
@@ -129,7 +128,7 @@ class User(Resource):
                         "status": False,
                         "detail": {"status": "old password incorrect"},
                     }, 400
-            elif True:
+            elif True:  # pylint: disable=using-constant-test
                 # For future: insert auth/email verification stuff in place of True
                 # Alternatively, use info in args["detail"] to authenticate
                 sql_query = f"UPDATE user_accounts SET pwd = '{args['new_pwd']}' WHERE user_name = '{args['user_name']}';"

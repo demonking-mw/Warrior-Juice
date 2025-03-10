@@ -6,7 +6,7 @@ python -m api_test.api_1
 
 # pylint: disable=import-error
 from flask import Flask
-from flask_restful import Api, Resource, reqparse
+from flask_restful import Api, reqparse
 from flask_cors import CORS
 from .classes.user import User
 from .classes.activity import Activity

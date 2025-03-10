@@ -2,8 +2,9 @@
 parse google auth jwt to standard user auth 
 """
 
-import jwt
 import os
+import jwt
+
 from dotenv import load_dotenv
 
 

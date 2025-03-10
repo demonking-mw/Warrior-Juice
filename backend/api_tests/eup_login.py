@@ -1,3 +1,6 @@
+'''
+tests login with email user password
+'''
 import sys
 import requests
 
