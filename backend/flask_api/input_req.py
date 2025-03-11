@@ -50,20 +50,21 @@ user_auth.add_argument("user_name", type=str, help="Name", required=False)
 # modify user: username, pwd(not mandatory), new_pwd, email, tier, detail
 user_modify = reqparse.RequestParser()
 user_modify.add_argument(
-    "action",
+    "auth_type",
     type=str,
-    help="Action is required, can be change or mod_tier or delete or purge",
+    help="Account/auth type is required: eup/go/recover, auth is different for the two types",
     required=True,
 )
 user_modify.add_argument(
-    "user_name", type=str, help="User name is required", required=True
+    "uid", type=str, help="UID is required, not changable", required=True
 )
+user_modify.add_argument("user_name", type=str, help="Existing user name", required=False)
 user_modify.add_argument("pwd", type=str, help="Old password, for auth", required=False)
 user_modify.add_argument("new_pwd", type=str, help="New password", required=False)
-user_modify.add_argument("email", type=str, help="New email", required=False)
-user_modify.add_argument("tier", type=str, help="Updated tier", required=False)
+user_modify.add_argument("new_user_name", type=str, help="New user name", required=False)
+user_modify.add_argument("new_tier", type=str, help="Updated tier", required=False)
 user_modify.add_argument(
-    "detail", type=str, help="Auth info to mode tier or new pwd", required=False
+    "auth_str", type=str, help="Auth string for password recovery", required=False
 )
 #######################################################################################
 

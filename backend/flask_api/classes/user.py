@@ -62,7 +62,15 @@ class User(Resource):
         else:
             return {"status": False, "detail": {"status": "unknown type"}}, 400
 
-
+    def put(self):
+        '''
+        Edit users
+        Two types: admin and info
+        admin: change password, email for eup, change tier, delete user
+        this class only handles admin, info is another class
+        '''
+        args = input_req.user_modify.parse_args()
+        
 '''
     def put(self):
         """
