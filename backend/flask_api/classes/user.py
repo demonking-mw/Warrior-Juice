@@ -6,7 +6,7 @@ Operations around users
 from flask_restful import Resource
 from backend.flask_api import input_req
 from backend.logic_classes import google_auth_extract as ga_ext
-from backend.logic_classes import user_auth
+from backend.logic_classes import user_auth, admin_user_edit as aue
 
 
 class User(Resource):
@@ -66,11 +66,21 @@ class User(Resource):
         '''
         Edit users
         Two types: admin and info
-        admin: change password, email for eup, change tier, delete user
+        Admin: change password, email for eup, change tier, delete user
         this class only handles admin, info is another class
+        For email recovery, store a token in the aux_info json in user_account
+        Then check it against the input
         '''
         args = input_req.user_modify.parse_args()
-        
+        user_info_edit = aue.AdminUserEdit(args)
+        edit_json = user_info_edit.authenticate()
+        if not edit_json["status"]:
+            return edit_json, 400
+        result = user_info_edit.edit()
+        if result["status"]:
+            return result, 200
+        return result, 400
+
 '''
     def put(self):
         """

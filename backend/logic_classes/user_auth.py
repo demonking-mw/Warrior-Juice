@@ -95,7 +95,7 @@ class UserAuth:
     def delete_eupn(self) -> tuple[dict, int]:
         """
         delete user with email, uid, password (and name)
-
+        TO BE MIGRATED TO admin_user_edit.py
         Expected result: success; deletion failed (return specific error)
         """
         required_fields = ["uid", "pwd", "email", "user_name"]
