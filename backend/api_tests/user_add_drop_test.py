@@ -15,22 +15,22 @@ response = requests.post(
 )
 if response.json().get("status"):
     print("created\n")
-    # del_response = requests.put(
-    #     BASE + "/user",
-    #     json={
-    #         "action": "delete",
-    #         "user_name": "jocelyn",
-    #         "pwd": "100",
-    #     },
-    #     timeout=35,
-    # )
-    # if del_response.json().get("status"):
-    #     print("deleted")
-    #     sys.exit(0)
-    # else:
-    #     print("delete failed")
-    #     print(del_response.json())
-    #     sys.exit(3)
+    del_response = requests.put(
+        BASE + "/user",
+        json={
+            "action": "delete",
+            "user_name": "jocelyn",
+            "pwd": "100",
+        },
+        timeout=35,
+    )
+    if del_response.json().get("status"):
+        print("deleted")
+        sys.exit(0)
+    else:
+        print("delete failed")
+        print(del_response.json())
+        sys.exit(3)
 else:
     print("create failed")
     print(response.json())
