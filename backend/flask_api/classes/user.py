@@ -82,8 +82,6 @@ class User(Resource):
                 print("ERROR: something is cooked for login")
                 return {"status": False, "detail": {"status": "info mismatch"}}, 400
             else:
-                print("DEBUG2")
-                print(str(login_status))
                 return user_auth_json, login_status
         elif args["type"] == "jwt_check":
             # login with a jwt token

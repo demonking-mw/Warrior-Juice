@@ -19,8 +19,7 @@ if not response.json().get("status"):
     sys.exit(3)
 
 reauth_token = response.json().get("jwt")
-print("DEBUG")
-print(str(reauth_token))
+
 response = requests.post(
     BASE + "/user",
     json={"type": "jwt", "reauth_jwt": reauth_token, "uid": "bob"},
@@ -28,6 +27,10 @@ response = requests.post(
 )
 if response.json().get("status"):
     print("complete\n")
+    if response.json().get("jwt") == reauth_token:
+        print("JWT token matches reauth_token")
+    else:
+        print("JWT token does not match reauth_token")
     sys.exit(0)
 else:
     print("reauth failed")

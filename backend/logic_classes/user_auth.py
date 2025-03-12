@@ -94,6 +94,11 @@ class UserAuth:
             return {"status": True, "detail": "jwt token valid"}, 200
         sql_query = f"SELECT * FROM user_accounts WHERE uid = '{self.args['uid']}';"
         table_1 = self.database.run_sql(sql_query)
+        if datetime.datetime.utcnow() > datetime.datetime.fromtimestamp(
+            payload['exp']
+        ) - datetime.timedelta(minutes=20):
+            # Frequent resign prevention: will sign once every 20 min
+            return {"status": True, "detail": table_1[0], "jwt": self.args["reauth_jwt"]}, 200
         return {"status": True, "detail": table_1[0], "jwt": self.sign_jwt(self.args['uid'])}, 200
         # Successful auth returns a new jwt token with more valid time
 

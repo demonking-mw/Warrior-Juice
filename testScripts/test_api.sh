@@ -34,20 +34,24 @@ fi
 python -m backend.flask_api.api_1 &
 echo "Running api server"
 sleep 12 # Wait for the server to start
-
+pass_count=0
+fail_count=0
 for indiv_test in $(cat $test_file | tr -d '\r'); do
     echo "\nAttempt to run test $indiv_test: "
     python -m backend.api_tests."$indiv_test"
     if [ $? -eq 0 ]; then
         echo "Test $indiv_test passed"
+        pass_count=$((pass_count + 1))
     else
         echo "Test $indiv_test failed"
+        fail_count=$((fail_count + 1))
     fi
 done
+echo "\n\nTests completed. Passed: $pass_count, Failed: $fail_count \n\n"
 
 
 pkill -f "backend.flask_api.api_1"
 echo "Killed api server"
-exit 0
+exit $fail_count
 
 
