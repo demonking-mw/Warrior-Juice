@@ -15,7 +15,6 @@ class UserInfo(Resource):
     Handles the modification of user info
     Such as: user_act_list, user_sess_id, etc
     """
-    
 
 
 class User(Resource):
@@ -73,7 +72,10 @@ class User(Resource):
         elif args["type"] == "jwt":
             # login with a jwt token
             if "reauth_jwt" not in args:
-                return {"status": False, "detail": {"status": "reauth_jwt missing"}}, 400
+                return {
+                    "status": False,
+                    "detail": {"status": "reauth_jwt missing"},
+                }, 400
             database = dbconn.DBConn()
             user_auth_obj = user_auth.UserAuth(database, args)
             user_auth_json, login_status = user_auth_obj.login_jwt()
@@ -86,7 +88,10 @@ class User(Resource):
         elif args["type"] == "jwt_check":
             # login with a jwt token
             if "reauth_jwt" not in args:
-                return {"status": False, "detail": {"status": "reauth_jwt missing"}}, 400
+                return {
+                    "status": False,
+                    "detail": {"status": "reauth_jwt missing"},
+                }, 400
             database = dbconn.DBConn()
             user_auth_obj = user_auth.UserAuth(database, args)
             user_auth_json, login_status = user_auth_obj.login_jwt(True)

@@ -40,7 +40,11 @@ user_auth.add_argument(
     "jwt_token", type=str, help="JWT token for go type", required=False, default=None
 )
 user_auth.add_argument(
-    "reauth_jwt", type=str, help="JWT token provided from first login, good for 1h", required=False, default=None
+    "reauth_jwt",
+    type=str,
+    help="JWT token provided from first login, good for 1h",
+    required=False,
+    default=None,
 )
 user_auth.add_argument("action", type=str, help="login/signup", required=False)
 user_auth.add_argument("email", type=str, help="Email", required=False)

@@ -3,19 +3,9 @@ tests login with email user password
 """
 
 import sys
-import requests
+from backend.api_tests import request_general as RG
 
-BASE = "http://127.0.0.1:5000"
+req_json = {"type": "eup", "action": "login", "uid": "bob", "pwd": "password"}
+exit_code, response = RG.post("/user", req_json)
 
-response = requests.post(
-    BASE + "/user",
-    json={"type": "eup", "action": "login", "uid": "bob", "pwd": "password"},
-    timeout=35,
-)
-if response.json().get("status"):
-    print("complete\n")
-    sys.exit(0)
-else:
-    print("get failed")
-    print(response.json())
-    sys.exit(3)
+sys.exit(exit_code)
