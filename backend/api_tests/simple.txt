@@ -1,3 +1,4 @@
+eup_reauth
 oauth_login
 eup_login
 eupn_signup

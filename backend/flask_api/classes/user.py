@@ -12,8 +12,10 @@ from backend.flask_api import dbconn
 
 class UserInfo(Resource):
     """
-    handles the modification of
+    Handles the modification of user info
+    Such as: user_act_list, user_sess_id, etc
     """
+    
 
 
 class User(Resource):
@@ -68,7 +70,34 @@ class User(Resource):
                 return {"status": False, "detail": {"status": "info mismatch"}}, 400
             else:
                 return user_auth_json, login_status
-
+        elif args["type"] == "jwt":
+            # login with a jwt token
+            if "reauth_jwt" not in args:
+                return {"status": False, "detail": {"status": "reauth_jwt missing"}}, 400
+            database = dbconn.DBConn()
+            user_auth_obj = user_auth.UserAuth(database, args)
+            user_auth_json, login_status = user_auth_obj.login_jwt()
+            database.close()
+            if login_status == -1:
+                print("ERROR: something is cooked for login")
+                return {"status": False, "detail": {"status": "info mismatch"}}, 400
+            else:
+                print("DEBUG2")
+                print(str(login_status))
+                return user_auth_json, login_status
+        elif args["type"] == "jwt_check":
+            # login with a jwt token
+            if "reauth_jwt" not in args:
+                return {"status": False, "detail": {"status": "reauth_jwt missing"}}, 400
+            database = dbconn.DBConn()
+            user_auth_obj = user_auth.UserAuth(database, args)
+            user_auth_json, login_status = user_auth_obj.login_jwt(True)
+            database.close()
+            if login_status == -1:
+                print("ERROR: something is cooked for login")
+                return {"status": False, "detail": {"status": "info mismatch"}}, 400
+            else:
+                return user_auth_json, login_status
         else:
             return {"status": False, "detail": {"status": "unknown type"}}, 400
 

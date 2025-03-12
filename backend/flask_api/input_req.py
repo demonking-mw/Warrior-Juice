@@ -33,11 +33,14 @@ user_auth = reqparse.RequestParser()
 user_auth.add_argument(
     "type",
     type=str,
-    help="Type is required, can be eup or go",
+    help="Type is required, can be eup or go or jwt or jwt_check",
     required=True,
 )
 user_auth.add_argument(
     "jwt_token", type=str, help="JWT token for go type", required=False, default=None
+)
+user_auth.add_argument(
+    "reauth_jwt", type=str, help="JWT token provided from first login, good for 1h", required=False, default=None
 )
 user_auth.add_argument("action", type=str, help="login/signup", required=False)
 user_auth.add_argument("email", type=str, help="Email", required=False)
@@ -80,6 +83,11 @@ user_modify.add_argument(
 )
 #######################################################################################
 
+# User Info Edit Reqs
+#######################################################################################
+userinfo_append = reqparse.RequestParser()
+
+#######################################################################################
 
 # Activity Reqs
 #######################################################################################

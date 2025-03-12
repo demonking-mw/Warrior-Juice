@@ -5,7 +5,7 @@ database = dbconn.DBConn(file_cache=____)
 table_1 = database.run_sql('SELECT * FROM user_accounts;')
 del database
 """
-
+import os
 import psycopg
 from psycopg_pool import ConnectionPool
 from dotenv import load_dotenv
@@ -26,8 +26,7 @@ class DBConn:
         """
         # Get the connection string from the environment variable
         load_dotenv()
-        # self.connection_string = os.getenv("DATABASE_URL")
-        self.connection_string = "postgresql://wjdb_owner:U31LBQlcgPYf@ep-patient-darkness-a1123ymq-pooler.ap-southeast-1.aws.neon.tech/wjdb?sslmode=require"
+        self.connection_string = os.getenv("DATABASE_URL")
         self.conn_pool = ConnectionPool(
             self.connection_string, kwargs={"sslmode": "require"}
         )
