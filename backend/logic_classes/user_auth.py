@@ -5,6 +5,7 @@ Signup options: username/password/email (upe), email/password (ep), google oauth
 Note: email smtp not supported, yet
 
 On database: eup for email/username/password, go for google oauth
+DATABASE: USE PROVIDED, DO NOT CLOSE
 
 Note: for each method, doccumentation of all possible result is mandatory
 """
@@ -33,11 +34,12 @@ class UserAuth:
         n for user_name
     """
 
-    def __init__(self, args: dict = None) -> None:
+    def __init__(self, database: dbconn.DBConn, args: dict = None) -> None:
         """
         takes in perspective info in the form of a json with varying fields depending on actions.
         Not having a field for an action will result in failure.
         """
+        self.database = database
         self.args = args
 
     def update_args(self, args: dict) -> None:
@@ -58,10 +60,8 @@ class UserAuth:
         if "uid" not in self.args or "pwd" not in self.args:
             print("ERROR: uid or pwd not provided")
             return {}, -1
-        database = dbconn.DBConn()
         sql_query = f"SELECT * FROM user_accounts WHERE uid = '{self.args['uid']}';"
-        table_1 = database.run_sql(sql_query)
-        database.close()
+        table_1 = self.database.run_sql(sql_query)
         if not table_1:
             return {"status": False, "detail": {"status": "user not found"}}, 400
         if table_1[0]["auth_type"] != "eup":
@@ -81,14 +81,11 @@ class UserAuth:
         if any(field not in self.args for field in required_fields):
             print("ERROR: uid, pwd, email, or name not provided")
             return {}, -1
-        database = dbconn.DBConn()
         sql_query = f"INSERT INTO user_accounts VALUES('{self.args['uid']}', '{self.args['user_name']}', '{self.args['pwd']}', '{self.args['email']}', false, 'eup', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb, 0, '{{}}'::jsonb)"
         try:
-            database.run_sql(sql_query)
-            database.close()
+            self.database.run_sql(sql_query)
             return {"status": True, "detail": {"status": "user created"}}, 201
         except psycopg.errors.UniqueViolation:
-            database.close()
             print("UID unique violation")
             return {"status": False, "detail": {"status": "uid unique violation"}}, 409
 
@@ -102,14 +99,11 @@ class UserAuth:
         if any(field not in self.args for field in required_fields):
             print("ERROR: uid, pwd, email, or name not provided")
             return {}, -1
-        database = dbconn.DBConn()
         sql_query = f"DELETE FROM user_accounts WHERE uid = '{self.args['uid']}' AND pwd = '{self.args['pwd']}' AND email = '{self.args['email']}' AND user_name = '{self.args['user_name']}';"
         try:
-            database.run_sql(sql_query)
-            database.close()
+            self.database.run_sql(sql_query)
             return {"status": True, "detail": {"status": "user deleted"}}, 200
         except Exception as e:  # pylint: disable=broad-except
-            database.close()
             print(f"ERROR: {e}")
             return {
                 "status": False,
@@ -127,22 +121,17 @@ class UserAuth:
         if "sub" not in self.args:
             print("ERROR: sub not provided")
             return {}, -1
-        database = dbconn.DBConn()
         sql_query = f"SELECT * FROM user_accounts WHERE uid = '{self.args['sub']}';"
-        table_1 = database.run_sql(sql_query)
+        table_1 = self.database.run_sql(sql_query)
 
         if not table_1:
             sql_query = f"INSERT INTO user_accounts VALUES('{self.args['sub']}', '{self.args['name']}', '', '{self.args['email']}', true, 'go', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb, 0, '{{}}'::jsonb)"
             try:
-                database.run_sql(sql_query)
-                database.close()
+                self.database.run_sql(sql_query)
                 return {"status": True, "detail": {"status": "user created"}}, 201
             except psycopg.errors.UniqueViolation:
-                database.close()
                 print("BACKEND ERROR: on creation while account exists")
                 return {}, -1
         if table_1[0]["auth_type"] != "go":
-            database.close()
             return {"status": False, "detail": "auth type mismatch"}, 401
-        database.close()
         return {"status": True, "detail": table_1[0]}, 200

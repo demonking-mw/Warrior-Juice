@@ -67,10 +67,14 @@ user_modify.add_argument(
 user_modify.add_argument(
     "jwt_token", type=str, help="JWT token for go type", required=False, default=None
 )
-user_modify.add_argument("user_name", type=str, help="Existing user name", required=False)
+user_modify.add_argument(
+    "user_name", type=str, help="Existing user name", required=False
+)
 user_modify.add_argument("pwd", type=str, help="Old password, for auth", required=False)
 user_modify.add_argument("new_pwd", type=str, help="New password", required=False)
-user_modify.add_argument("new_user_name", type=str, help="New user name", required=False)
+user_modify.add_argument(
+    "new_user_name", type=str, help="New user name", required=False
+)
 user_modify.add_argument(
     "auth_str", type=str, help="Auth string for password recovery", required=False
 )
