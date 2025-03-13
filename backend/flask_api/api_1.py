@@ -9,6 +9,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
 from .classes.user import User
+from .classes.userinfo import UserInfo
 from .classes.activity import Activity
 
 
@@ -31,6 +32,7 @@ def apply_cors_headers(response):
 
 
 api.add_resource(User, "/user")
+api.add_resource(UserInfo, "/user/info")
 api.add_resource(Activity, "/activity")
 
 if __name__ == "__main__":

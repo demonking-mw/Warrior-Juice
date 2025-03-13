@@ -6,15 +6,10 @@ Operations around users
 from flask_restful import Resource
 from backend.flask_api import input_req
 from backend.logic_classes import google_auth_extract as ga_ext
-from backend.logic_classes import user_auth, admin_user_edit as aue
+from backend.logic_classes import user_auth, userinfo_edit, admin_user_edit as aue
 from backend.flask_api import dbconn
 
 
-class UserInfo(Resource):
-    """
-    Handles the modification of user info
-    Such as: user_act_list, user_sess_id, etc
-    """
 
 
 class User(Resource):
@@ -116,7 +111,7 @@ class User(Resource):
         args = input_req.user_modify.parse_args()
         database = dbconn.DBConn()
         user_info_edit = aue.AdminUserEdit(database, args)
-        edit_json = user_info_edit.authenticate()
+        edit_json = user_info_edit.edit()
         if not edit_json["status"]:
             database.close()
             return edit_json, 400

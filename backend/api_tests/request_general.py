@@ -7,8 +7,6 @@ import requests
 TARGET_URL = "http://127.0.0.1:5000"
 
 
-
-
 def post(
     endpoint: str,
     json_data: dict,
@@ -35,6 +33,7 @@ def post(
             print("post request: failed")
         return 3, response
 
+
 def get(
     endpoint: str,
     params: dict = None,
@@ -58,6 +57,7 @@ def get(
             print("get request: failed")
         return 3, response
 
+
 def put(
     endpoint: str,
     json_data: dict,
@@ -80,6 +80,7 @@ def put(
         if debug_mode:
             print("put request: failed")
         return 3, response
+
 
 def delete(
     endpoint: str,

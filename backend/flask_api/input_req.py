@@ -89,8 +89,44 @@ user_modify.add_argument(
 
 # User Info Edit Reqs
 #######################################################################################
-userinfo_append = reqparse.RequestParser()
+userinfo_get = reqparse.RequestParser()
+userinfo_get.add_argument(
+    "reauth_jwt",
+    type=str,
+    help="JWT token provided from first login, good for 1h",
+    required=True,
+    default=None,
+)
+userinfo_get.add_argument(
+    "uid", type=str, help="User ID or sub for google oauth", required=True
+)
 
+userinfo_post = reqparse.RequestParser()
+userinfo_post.add_argument(
+    "reauth_jwt",
+    type=str,
+    help="JWT token provided from first login, good for 1h",
+    required=True,
+    default=None,
+)
+userinfo_post.add_argument(
+    "uid", type=str, help="User ID or sub for google oauth", required=True
+)
+userinfo_post.add_argument(
+    "act_ids",
+    type=str,
+    help="List of activity ids as string, split with comma only, no space",
+    required=False,
+    default=""
+)
+userinfo_post.add_argument(
+    "sess_ids",
+    type=str,
+    help="List of session ids as string, split with comma only, no space",
+    required=False,
+    default=""
+)
+    
 #######################################################################################
 
 # Activity Reqs

@@ -21,6 +21,7 @@ class AdminUserEdit:
         self.authed = False
         self.auth_type = None
         self.database = dbconn.DBConn()
+        self.authenticate()
 
     def authenticate(self) -> dict:
         """
