@@ -9,23 +9,6 @@ what for, what is required
 # pylint: disable=import-error
 from flask_restful import reqparse
 
-"""
-# User Reqs
-#######################################################################################
-# user login: user_name and pwd
-user_login = reqparse.RequestParser()
-user_login.add_argument("uid", type=str, help="User name is required", required=True)
-user_login.add_argument("pwd", type=str, help="Password is required", required=True)
-
-
-# user registration: user_name, email, and pwd
-user_regis = reqparse.RequestParser()
-user_regis.add_argument(
-    "user_name", type=str, help="User name is required", required=True
-)
-user_regis.add_argument("email", type=str, help="Email is required", required=True)
-user_regis.add_argument("pwd", type=str, help="Password is required", required=True)
-"""
 # User Auth
 # Replacing Login and Regis
 #######################################################################################
@@ -117,16 +100,16 @@ userinfo_post.add_argument(
     type=str,
     help="List of activity ids as string, split with comma only, no space",
     required=False,
-    default=""
+    default="",
 )
 userinfo_post.add_argument(
     "sess_ids",
     type=str,
     help="List of session ids as string, split with comma only, no space",
     required=False,
-    default=""
+    default="",
 )
-    
+
 #######################################################################################
 
 # Activity Reqs

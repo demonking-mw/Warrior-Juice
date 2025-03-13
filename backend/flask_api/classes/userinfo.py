@@ -8,6 +8,7 @@ from backend.flask_api import input_req
 from backend.logic_classes import user_auth, userinfo_edit
 from backend.flask_api import dbconn
 
+
 class UserInfo(Resource):
     """
     Handles the modification of user info

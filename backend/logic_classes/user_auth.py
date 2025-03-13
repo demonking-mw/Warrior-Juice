@@ -14,7 +14,6 @@ import os
 import datetime
 import jwt  # pylint: disable=import-error
 
-from flask_restful import Api, Resource, reqparse  # type: ignore
 from dotenv import load_dotenv
 
 import psycopg  # type: ignore

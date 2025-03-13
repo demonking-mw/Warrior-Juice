@@ -6,6 +6,7 @@ Examples: add/mod/del activities, sessions, calculate scores, etc
 from backend.logic_classes import user_auth
 from backend.flask_api import dbconn
 
+
 class UserInfoEdit:
     """
     Edit user information
