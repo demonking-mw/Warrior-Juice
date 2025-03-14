@@ -68,4 +68,85 @@ class UserInfoEdit:
             update_query,
             (act_ids_list, sess_ids_list, self.args["uid"]),
         )
-        return {"status": True, "detail": "activities updated successfully"}, 200
+        return {
+            "status": True,
+            "detail": "activities updated successfully",
+            "jwt": self.new_jwt
+        }, 200
+
+    def put_list(self):
+        """
+        Modify user information
+        For act_list, sess_id: returns 2 lists: not removed, not added
+        Required input: act_ids: list; sess_ids: list
+        """
+        if not self.authed:
+            return self.auth_message, self.auth_code
+        is_act_list = True
+        target = self.args["target"]
+        if target == "act_list":
+            target_list = self.auth_message["detail"]["user_act_list"]
+        elif target == "sess_list":
+            target_list = self.auth_message["detail"]["user_sess_id"]
+            is_act_list = False
+        else:
+            return {"status": False, "detail": "target neither act_list nor sess_list"}, 400
+        to_remove = [int(x) for x in self.args["remove_list"].split(",") if x]
+        to_add = [int(x) for x in self.args["add_list"].split(",") if x]
+        for item in to_remove[:]:
+            if item in target_list:
+                target_list.remove(item)
+                to_remove.remove(item)
+        print("DEBUG: target_list")
+        print(target_list)
+        for item in to_add[:]:
+            print("DEBUG: item")
+            print(item)
+            if item not in target_list:
+                target_list.append(item)
+                to_add.remove(item)
+        if is_act_list:
+            update_query = """
+            UPDATE user_accounts
+            SET user_act_list = %s
+            WHERE uid = %s;
+            """
+            self.database.run_sql(
+                update_query,
+                (target_list, self.args["uid"]),
+            )
+            return {
+                "status": True,
+                "detail": {"removed": to_remove, "added": to_add},
+                "jwt": self.new_jwt
+            }, 200
+        else:
+            update_query = """
+            UPDATE user_accounts
+            SET user_sess_id = %s
+            WHERE uid = %s;
+            """
+            self.database.run_sql(
+                update_query,
+                (target_list, self.args["uid"]),
+            )
+            return {
+                "status": True,
+                "detail": {"removed": to_remove, "added": to_add},
+                "jwt": self.new_jwt
+            }, 200
+
+    def update_score(self):
+        """
+        Update user score
+        Can be calculate new score base on info or manual update
+        """
+        return {"status": False, "detail": "Not built yet"}, 500
+
+    def update_efficiency(self):
+        """
+        Update user efficiency
+        Can be calculate new efficiency base on info or manual update
+        """
+        return {"status": False, "detail": "Not built yet"}, 500
+

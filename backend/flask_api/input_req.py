@@ -109,6 +109,52 @@ userinfo_post.add_argument(
     required=False,
     default="",
 )
+userinfo_put = reqparse.RequestParser()
+userinfo_put.add_argument(
+    "reauth_jwt",
+    type=str,
+    help="JWT token provided from first login, good for 1h",
+    required=True,
+    default=None,
+)
+userinfo_put.add_argument(
+    "uid", type=str, help="User ID or sub for google oauth", required=True
+)
+userinfo_put.add_argument(
+    "target",
+    type=str,
+    help="the target field to change/cook: act_list, sess_list, efficiency, score",
+    required=True,
+    default=None,
+)
+userinfo_put.add_argument(
+    "action",
+    type=str,
+    help="the action for: efficiency, score: compute, manual adjust",
+    required=False,
+    default=None,
+)
+userinfo_put.add_argument(
+    "add_list",
+    type=str,
+    help="List of activity ids as string, split with comma only, no space",
+    required=False,
+    default="",
+)
+userinfo_put.add_argument(
+    "remove_list",
+    type=str,
+    help="List of activity ids as string, split with comma only, no space",
+    required=False,
+    default="",
+)
+userinfo_put.add_argument(
+    "info",
+    type=dict,
+    help="additional info for score, efficiency; key must be score or efficiency",
+    required=False,
+    default=None,
+)
 
 #######################################################################################
 

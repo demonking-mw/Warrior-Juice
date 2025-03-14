@@ -48,3 +48,19 @@ class UserInfo(Resource):
         result = user_info_edit.post()
         database.close()
         return result
+
+    def put(self):
+        """
+        Change user info
+        """
+        args = input_req.userinfo_put.parse_args()
+        database = dbconn.DBConn()
+        user_info_edit = userinfo_edit.UserInfoEdit(database, args)
+        if args["target"] == "act_list" or args["target"] == "sess_list":
+            result, code = user_info_edit.put_list()
+        # Note, setting score and efficiency is not built yet
+        # Since it will work with activities and sessions
+        else:
+            return {"status": False, "detail": "target not found"}, 400
+        database.close()
+        return result, code
