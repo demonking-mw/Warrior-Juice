@@ -8,7 +8,7 @@ from flask import Flask
 from flask_restful import Api, Resource, reqparse
 import psycopg
 
-from backend.flask_api import dbconn, input_req
+from backend.flask_api import dbconn, input_req_user as input_req
 from backend.logic_classes import user_name_flatten as unf
 from backend.logic_classes import build_qparser
 

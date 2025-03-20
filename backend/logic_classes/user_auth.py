@@ -101,7 +101,7 @@ class UserAuth:
         table_1 = self.database.run_sql(sql_query)
         if datetime.datetime.utcnow() > datetime.datetime.fromtimestamp(
             payload["exp"]
-        ) - datetime.timedelta(minutes=20):
+        ) - datetime.timedelta(minutes=15):
             # Frequent resign prevention: will sign once every 20 min
             return {
                 "status": True,
