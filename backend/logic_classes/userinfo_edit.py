@@ -38,7 +38,7 @@ class UserInfoEdit:
             print("ERROR:" + str(auth_result))
             return {"status": False, "detail": "info mismatch, bug in code"}
         if not auth_result["status"]:
-            return {"status": False, "detail": self.auth_message}
+            return {"status": False, "detail": auth_result["detail"]}
         self.authed = True
         self.new_jwt = auth_result.get("jwt")
         return auth_result, code
