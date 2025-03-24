@@ -38,7 +38,7 @@ class UserInfoEdit:
             print("ERROR:" + str(auth_result))
             return {"status": False, "detail": "info mismatch, bug in code"}
         if not auth_result["status"]:
-            return {"status": False, "detail": self.auth_message}
+            return {"status": False, "detail": auth_result["detail"]}
         self.authed = True
         self.new_jwt = auth_result.get("jwt")
         return auth_result, code
@@ -71,7 +71,7 @@ class UserInfoEdit:
         return {
             "status": True,
             "detail": "activities updated successfully",
-            "jwt": self.new_jwt
+            "jwt": self.new_jwt,
         }, 200
 
     def put_list(self):
@@ -90,7 +90,10 @@ class UserInfoEdit:
             target_list = self.auth_message["detail"]["user_sess_id"]
             is_act_list = False
         else:
-            return {"status": False, "detail": "target neither act_list nor sess_list"}, 400
+            return {
+                "status": False,
+                "detail": "target neither act_list nor sess_list",
+            }, 400
         to_remove = [int(x) for x in self.args["remove_list"].split(",") if x]
         to_add = [int(x) for x in self.args["add_list"].split(",") if x]
         for item in to_remove[:]:
@@ -118,7 +121,7 @@ class UserInfoEdit:
             return {
                 "status": True,
                 "detail": {"removed": to_remove, "added": to_add},
-                "jwt": self.new_jwt
+                "jwt": self.new_jwt,
             }, 200
         else:
             update_query = """
@@ -133,7 +136,7 @@ class UserInfoEdit:
             return {
                 "status": True,
                 "detail": {"removed": to_remove, "added": to_add},
-                "jwt": self.new_jwt
+                "jwt": self.new_jwt,
             }, 200
 
     def update_score(self):
@@ -149,4 +152,3 @@ class UserInfoEdit:
         Can be calculate new efficiency base on info or manual update
         """
         return {"status": False, "detail": "Not built yet"}, 500
-
