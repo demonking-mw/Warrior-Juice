@@ -3,7 +3,7 @@ helper for flattening nested JSON and extracting user_names
 """
 
 
-def user_flatten(data):
+def user_flatten(data: dict) -> list:
     """
     flattens nested JSON and extracts user_names
     """

@@ -4,6 +4,7 @@ Takes in a db object
 """
 
 from backend.logic_classes import user_auth
+from backend.logic_classes import user_name_flatten as unf
 from backend.flask_api import dbconn
 
 
@@ -29,7 +30,36 @@ class ActivityActions:
     def get(self) -> tuple[dict, int]:
         """
         Get the activities for the user
+        Takes in: uid, reauth_jwt, get_all(bool). act_id(optional)
         """
         if not self.auth_result["status"]:
             return self.auth_result, self.auth_code
-        # Get the activitie
+        if self.args["get_all"]:
+            # NO FAIL CASE HERE
+            # Get all activities of the user
+            all_act_ids = self.auth_result["detail"]["user_act_list"]
+            num_of_acts = len(all_act_ids)
+            if not all_act_ids:
+                return {"status": True, "detail": {}}, 200
+            # using auth, get all acts that belong to the user
+            query = "SELECT * FROM activity WHERE act_id = ANY(%s)"
+            table_1 = self.database.run_sql(query, (all_act_ids,))
+            return {
+                "status": True,
+                "detail": {"total_count": num_of_acts, "acts": table_1},
+            }, 200
+        else:
+            # Get a single activity, by its id
+            # Auth whether the user can see this activity
+            if self.args["act_id"] is None:
+                return {"status": False, "error": "Missing activity ID"}, 400
+
+            act_id = self.args["act_id"]
+            query = "SELECT * FROM activity WHERE act_id = %s"
+            table_1 = self.database.run_sql(query, (act_id,))
+            if not table_1:
+                return {"status": False, "error": "Activity not found"}, 404
+            # Check if the user is allowed to see this activity
+            if act_id not in unf.user_flatten(table_1[0]["uids"]):
+                return {"status": False, "error": "Unauthorized"}, 403
+            return {"status": True, "detail": table_1}, 200

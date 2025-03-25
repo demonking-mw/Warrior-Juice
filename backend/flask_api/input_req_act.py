@@ -12,9 +12,7 @@ from flask_restful import reqparse
 # Activity Get
 #######################################################################################
 activity_get = reqparse.RequestParser()
-activity_get.add_argument(
-    "uid", type=str, help="User ID is required", required=True
-)
+activity_get.add_argument("uid", type=str, help="User ID is required", required=True)
 activity_get.add_argument(
     "reauth_jwt",
     type=str,
@@ -29,9 +27,7 @@ activity_get.add_argument(
     required=True,
 )
 activity_get.add_argument(
-    "act_id", type=int,
-    help="Activity ID, required if get_all is False",
-    required=False
+    "act_id", type=int, help="Activity ID, required if get_all is False", required=False
 )
 
 #######################################################################################
@@ -39,9 +35,7 @@ activity_get.add_argument(
 #######################################################################################
 # Activity Create
 activity_create = reqparse.RequestParser()
-activity_create.add_argument(
-    "uid", type=str, help="User ID is required", required=True
-)
+activity_create.add_argument("uid", type=str, help="User ID is required", required=True)
 activity_create.add_argument(
     "reauth_jwt",
     type=str,
@@ -77,9 +71,6 @@ activity_create.add_argument(
 #######################################################################################
 
 #######################################################################################
-
-
-
 
 
 activity_modify = reqparse.RequestParser()
@@ -123,4 +114,3 @@ activity_modify.add_argument(
     help="tree of all subtask ids, pre-defined slot uses -1",
     required=False,
 )
-

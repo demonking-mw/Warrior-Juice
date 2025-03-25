@@ -47,11 +47,10 @@ class DBConn:
                         results = cur.fetchall()
                     else:
                         conn.commit()
-
-            return results
         except (QueryCanceled, OperationalError) as e:
             print(f"Database error: {e}")
             results = []
+        return results
 
     def close(self) -> None:
         """
