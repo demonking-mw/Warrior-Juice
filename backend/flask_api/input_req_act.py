@@ -11,4 +11,116 @@ from flask_restful import reqparse
 
 # Activity Get
 #######################################################################################
+activity_get = reqparse.RequestParser()
+activity_get.add_argument(
+    "uid", type=str, help="User ID is required", required=True
+)
+activity_get.add_argument(
+    "reauth_jwt",
+    type=str,
+    help="JWT token provided from first login, good for 1h",
+    required=True,
+    default=None,
+)
+activity_get.add_argument(
+    "get_all",
+    type=bool,
+    help="True: all acts under a user, False: one act by its id",
+    required=True,
+)
+activity_get.add_argument(
+    "act_id", type=int,
+    help="Activity ID, required if get_all is False",
+    required=False
+)
+
+#######################################################################################
+
+#######################################################################################
+# Activity Create
+activity_create = reqparse.RequestParser()
+activity_create.add_argument(
+    "uid", type=str, help="User ID is required", required=True
+)
+activity_create.add_argument(
+    "reauth_jwt",
+    type=str,
+    help="JWT token provided from first login, good for 1h",
+    required=True,
+    default=None,
+)
+activity_create.add_argument(
+    "act_title", type=str, help="Activity title is required", required=True
+)
+# user name tree will be updated after
+# admin user name will be updated after
+activity_create.add_argument("act_type", type=str, help="Activity type", required=False)
+activity_create.add_argument(
+    "due_date",
+    type=str,
+    help="Due date in the form '2025-02-02 14:30:00'",
+    required=False,
+)
+activity_create.add_argument(
+    "act_brief", type=str, help="Activity brief, up to 256 char", required=False
+)
+activity_create.add_argument(
+    "aux_info", type=dict, help="additional info for activity", required=False
+)
+#######################################################################################
+
+#######################################################################################
+# Activity Modify
+# Implement later
+
+# Activity Reqs
+#######################################################################################
+
+#######################################################################################
+
+
+
+
+
+activity_modify = reqparse.RequestParser()
+activity_modify.add_argument(
+    "action",
+    type=str,
+    help="Action is required, can be change or delete",
+    required=True,
+)
+activity_modify.add_argument("act_id", type=int, help="Activity id", required=True)
+activity_modify.add_argument(
+    "user_name", type=str, help="user_name is required", required=True
+)
+activity_modify.add_argument(
+    "act_type", type=str, help="type of activity", required=False
+)
+activity_modify.add_argument(
+    "user_name_tree", type=dict, help="user_name_tree", required=False
+)
+activity_modify.add_argument(
+    "admin_user_name", type=list, help="list of admin", required=False
+)
+activity_modify.add_argument(
+    "due_date",
+    type=str,
+    help="Due date in the form '2025-02-02 14:30:00'",
+    required=False,
+)
+activity_modify.add_argument(
+    "act_title", type=str, help="activity title", required=False
+)
+activity_modify.add_argument(
+    "act_brief", type=str, help="Activity brief, up to 256 char", required=False
+)
+activity_modify.add_argument(
+    "aux_info", type=dict, help="additional info for activity", required=False
+)
+activity_modify.add_argument(
+    "task_tree",
+    type=dict,
+    help="tree of all subtask ids, pre-defined slot uses -1",
+    required=False,
+)
 
