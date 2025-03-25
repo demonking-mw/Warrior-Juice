@@ -3,6 +3,8 @@ Handles the DB side of activities
 Takes in a db object
 """
 
+from datetime import datetime
+
 from backend.logic_classes import user_auth
 from backend.logic_classes import user_name_flatten as unf
 from backend.flask_api import dbconn
@@ -63,3 +65,43 @@ class ActivityActions:
             if act_id not in unf.user_flatten(table_1[0]["uids"]):
                 return {"status": False, "error": "Unauthorized"}, 403
             return {"status": True, "detail": table_1}, 200
+
+    def create_act(self) -> tuple[int, bool]:
+        """
+        Create an activity
+        Put user in the uids, admin_uids
+        Effect:
+            set: act_type, uids, admin_uids, due_date, act_title, act_brief
+            init: uids, admin_uids, act_aux_info, task_tree
+        """
+        # Validate required fields
+
+        # Prepare SQL query and parameters
+        query = """
+            INSERT INTO activity (act_type, uids, admin_uids, due_date, act_title, act_brief, act_aux_info, tasks_tree)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING act_id
+        """
+        uids = {"creator": self.args["uid"]}
+        admin_uids = [self.args["uid"]]
+        # Convert due_date string to datetime object
+        due_date = datetime.strptime(self.args["due_date"], "%Y-%m-%d %H:%M:%S")
+
+        params = (
+            self.args["act_type"],
+            uids,
+            admin_uids,
+            due_date,
+            self.args["act_title"],
+            self.args["act_brief"],
+            {},
+            {},
+        )
+
+        # Execute the query
+        result = self.database.run_sql(query, params)
+        if not result:
+            return -1, False
+
+        # Return success response
+        return result[0]["act_id"], True

@@ -1,20 +1,17 @@
-'''
+"""
 Tests get for act
-'''
+"""
 
 import sys
 import requests
 from backend.api_tests import sample_auth
+
 # pylint: disable=import-error
 
 BASE = "http://127.0.0.1:5000"
 
 reauth_token = sample_auth.auth()
-act_json = {
-    "uid": "bob",
-    "reauth_jwt": reauth_token,
-    "get_all": True
-}
+act_json = {"uid": "bob", "reauth_jwt": reauth_token, "get_all": True}
 response = requests.get(
     BASE + "/activity",
     json=act_json,

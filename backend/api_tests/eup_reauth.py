@@ -6,6 +6,7 @@ then tests reauth with jwt token
 import sys
 import requests
 from backend.api_tests import sample_auth
+
 # pylint: disable=import-error
 
 BASE = "http://127.0.0.1:5000"

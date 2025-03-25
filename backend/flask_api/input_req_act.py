@@ -61,6 +61,9 @@ activity_create.add_argument(
 activity_create.add_argument(
     "aux_info", type=dict, help="additional info for activity", required=False
 )
+activity_create.add_argument(
+    "act_type", type=str, help="type of activity", required=True
+)
 #######################################################################################
 
 #######################################################################################

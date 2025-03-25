@@ -8,10 +8,11 @@ import requests
 
 BASE = "http://127.0.0.1:5000"
 
+
 def auth() -> str:
-    '''
+    """
     get a jwt for testing
-    '''
+    """
     response = requests.post(
         BASE + "/user",
         json={"type": "eup", "action": "login", "uid": "bob", "pwd": "password"},
