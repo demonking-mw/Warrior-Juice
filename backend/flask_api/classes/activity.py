@@ -27,9 +27,11 @@ class Activity(Resource):
         args = input_req.activity_get.parse_args()
         database = dbconn.DBConn()
         activity_act = aa.ActivityActions(database, args)
-        result = activity_act.get()
+        result, code = activity_act.get()
         database.close()
-        return result
+        # Ensure result is JSON serializable
+        result = json.loads(json.dumps(result, default=str))
+        return result, code
 
     def post(self):
         """

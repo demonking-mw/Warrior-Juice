@@ -5,20 +5,12 @@ then tests reauth with jwt token
 
 import sys
 import requests
+from backend.api_tests import sample_auth
+# pylint: disable=import-error
 
 BASE = "http://127.0.0.1:5000"
 
-response = requests.post(
-    BASE + "/user",
-    json={"type": "eup", "action": "login", "uid": "bob", "pwd": "password"},
-    timeout=35,
-)
-if not response.json().get("status"):
-    print("get failed")
-    print(response.json())
-    sys.exit(3)
-
-reauth_token = response.json().get("jwt")
+reauth_token = sample_auth.auth()
 
 response = requests.post(
     BASE + "/user",

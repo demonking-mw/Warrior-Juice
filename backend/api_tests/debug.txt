@@ -1,1 +1,1 @@
-actinfo_put
+act_get
