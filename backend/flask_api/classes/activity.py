@@ -47,10 +47,10 @@ class Activity(Resource):
             database.close()
             return {"status": False, "detail": "creation failed"}, 400
         psudoargs = {
-            "jwt_token": args["jwt_token"],
+            "reauth_jwt": args["reauth_jwt"],
             "uid": args["uid"],
-            "act_ids": [new_act_id],
-            "sess_ids": [],
+            "act_ids": str(new_act_id),
+            "sess_ids": "",
         }
         user_info_edit = userinfo_edit.UserInfoEdit(database, psudoargs)
         result, code = user_info_edit.post()

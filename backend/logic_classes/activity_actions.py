@@ -2,7 +2,7 @@
 Handles the DB side of activities
 Takes in a db object
 """
-
+import json
 from datetime import datetime
 
 from backend.logic_classes import user_auth
@@ -87,15 +87,17 @@ class ActivityActions:
         # Convert due_date string to datetime object
         due_date = datetime.strptime(self.args["due_date"], "%Y-%m-%d %H:%M:%S")
 
+        
+
         params = (
             self.args["act_type"],
-            uids,
+            json.dumps(uids),
             admin_uids,
             due_date,
             self.args["act_title"],
             self.args["act_brief"],
-            {},
-            {},
+            json.dumps({}),
+            json.dumps({}),
         )
 
         # Execute the query
