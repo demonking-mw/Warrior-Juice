@@ -2,6 +2,7 @@
 Handles the DB side of activities
 Takes in a db object
 """
+
 import json
 from datetime import datetime
 
@@ -65,8 +66,10 @@ class ActivityActions:
             if self.args["uid"] not in unf.user_flatten(table_1[0]["uids"]):
                 return {"status": False, "error": "Unauthorized"}, 403
             return {"status": True, "detail": table_1}, 200
+        # The full get_type will be implemented once tasks are better defined
         else:
             return {"status": False, "detail": "invalid get_type arg"}, 400
+
     def create_act(self) -> tuple[int, bool]:
         """
         Create an activity
@@ -88,8 +91,6 @@ class ActivityActions:
         # Convert due_date string to datetime object
         due_date = datetime.strptime(self.args["due_date"], "%Y-%m-%d %H:%M:%S")
 
-        
-
         params = (
             self.args["act_type"],
             json.dumps(uids),
@@ -108,3 +109,20 @@ class ActivityActions:
 
         # Return success response
         return result[0]["act_id"], True
+
+    def update_crit(self) -> tuple[dict, int]:
+        """
+        Update critical fields of an activity
+        Requires uid, reauth_jwt, act_id to auth
+        
+        """
+        # Validate required fields
+        act_id = self.args["act_id"]
+        query = "SELECT * FROM activity WHERE act_id = %s"
+        table_1 = self.database.run_sql(query, (act_id,))
+        if not table_1:
+            return {"status": False, "error": "Activity not found"}, 404
+        # Check if the user is allowed to see this activity
+        if self.args["uid"] not in table_1[0]["admin_uids"]:
+            return {"status": False, "error": "Unauthorized"}, 403
+        curr_act = table_1[0]

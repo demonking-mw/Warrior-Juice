@@ -4,7 +4,6 @@ Operations around activities
 
 # pylint: disable=import-error
 import json
-from flask import Flask
 from flask_restful import Resource
 import psycopg
 
@@ -195,7 +194,7 @@ class Activity(Resource):
             """
             try:
                 database.run_sql(sql_query, params)
-            except Exception as e:
+            except Exception as e: # pylint: disable=broad-except
                 database.close()
                 return {
                     "status": False,
@@ -213,7 +212,7 @@ class Activity(Resource):
                 try:
                     database.run_sql(sql_query)
                     database.close()
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-except
                     database.close()
                     return {
                         "status": False,
