@@ -15,5 +15,6 @@ def user_flatten(data: dict) -> list:
                 user_names.extend(user_flatten(value))
             else:  # Base case: value is a user_name
                 user_names.append(value)
-
+    else:
+        print("ERROR: data is not a dictionary")
     return user_names

@@ -1,1 +1,1 @@
-act_post
+act_get

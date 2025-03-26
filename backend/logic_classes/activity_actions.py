@@ -36,7 +36,7 @@ class ActivityActions:
         """
         if not self.auth_result["status"]:
             return self.auth_result, self.auth_code
-        if self.args["get_all"]:
+        if self.args["get_type"] == "all":
             # NO FAIL CASE HERE
             # Get all activities of the user
             all_act_ids = self.auth_result["detail"]["user_act_list"]
@@ -50,7 +50,7 @@ class ActivityActions:
                 "status": True,
                 "detail": {"total_count": num_of_acts, "acts": table_1},
             }, 200
-        else:
+        elif self.args["get_type"] == "one":
             # Get a single activity, by its id
             # Auth whether the user can see this activity
             if self.args["act_id"] is None:
@@ -62,10 +62,11 @@ class ActivityActions:
             if not table_1:
                 return {"status": False, "error": "Activity not found"}, 404
             # Check if the user is allowed to see this activity
-            if act_id not in unf.user_flatten(table_1[0]["uids"]):
+            if self.args["uid"] not in unf.user_flatten(table_1[0]["uids"]):
                 return {"status": False, "error": "Unauthorized"}, 403
             return {"status": True, "detail": table_1}, 200
-
+        else:
+            return {"status": False, "detail": "invalid get_type arg"}, 400
     def create_act(self) -> tuple[int, bool]:
         """
         Create an activity

@@ -21,9 +21,9 @@ activity_get.add_argument(
     default=None,
 )
 activity_get.add_argument(
-    "get_all",
-    type=bool,
-    help="True: all acts under a user, False: one act by its id",
+    "get_type",
+    type=str,
+    help="one for one act as is, all for all acts of a user, full for one act with tasks",
     required=True,
 )
 activity_get.add_argument(
