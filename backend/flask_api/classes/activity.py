@@ -194,7 +194,7 @@ class Activity(Resource):
             """
             try:
                 database.run_sql(sql_query, params)
-            except Exception as e: # pylint: disable=broad-except
+            except Exception as e:  # pylint: disable=broad-except
                 database.close()
                 return {
                     "status": False,

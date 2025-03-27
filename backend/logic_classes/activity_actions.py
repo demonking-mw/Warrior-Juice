@@ -8,6 +8,7 @@ from datetime import datetime
 
 from backend.logic_classes import user_auth
 from backend.logic_classes import user_name_flatten as unf
+from backend.logic_classes import purge_tree as pt
 from backend.flask_api import dbconn
 
 
@@ -114,7 +115,8 @@ class ActivityActions:
         """
         Update critical fields of an activity
         Requires uid, reauth_jwt, act_id to auth
-        
+
+        Possible actions:
         """
         # Validate required fields
         act_id = self.args["act_id"]
@@ -122,7 +124,83 @@ class ActivityActions:
         table_1 = self.database.run_sql(query, (act_id,))
         if not table_1:
             return {"status": False, "error": "Activity not found"}, 404
-        # Check if the user is allowed to see this activity
+        # Check if the user has admin to see this activity
         if self.args["uid"] not in table_1[0]["admin_uids"]:
             return {"status": False, "error": "Unauthorized"}, 403
+        # User has admin access, update curr_act and upload
         curr_act = table_1[0]
+        detail_str = ""
+        # Only return failed, since no action will be performed
+        if self.args["act_type"]:
+            curr_act["act_type"] = self.args["act_type"]
+        if not self.args["target_uid"]:
+            # that's it, update and return
+            query = """
+            UPDATE activity
+            SET act_type = %s
+            WHERE act_id = %s
+            """
+            params = (
+                curr_act["act_type"],
+                act_id,
+            )
+            self.database.run_sql(query, params)
+            return {"status": True, "detail": "Activity type updated"}, 200
+        if not self.args["user_action"]:
+            pass
+        elif self.args["user_action"] == "add":
+            # insertion
+            if not self.args["target_uids"]:
+                return {"status": False, "error": "Missing uids"}, 400
+            if self.args["target_uids"] not in unf.user_flatten(curr_act["uids"]):
+                if self.args["uid_path"]:
+                    # Insert uid to specific location, build later
+                    pass
+                else:
+                    if "colaborator" not in curr_act["uids"]:
+                        curr_act["uids"]["colaborator"] = []
+                    curr_act["uids"].append(self.args["target_uids"])
+                    detail_str += "User added to colaborator, "
+                    # user added to colaborator list
+
+        elif self.args["user_action"] == "put":
+            # replace the tree
+            if not self.args["uid_tree"]:
+                return {"status": False, "error": "Missing uids"}, 400
+            curr_act["uids"] = self.args["uid_tree"]
+            detail_str += "tree set, "
+        elif self.args["user_action"] == "purge":
+            # remove all instances of target uid in the user_tree
+            # DO NOT PURGE USER ACCOUNT, handled in main function
+            curr_act["uids"] = pt.purge_tree(curr_act["uids"], self.args["target_uid"])
+            detail_str += "tree purged of user, "
+        else:
+            return {"status": False, "error": "Invalid user_action"}, 400
+        # Update the activity
+
+        curr_admins = curr_act["admin_uids"]
+        # The update function is not coded yet
+        if self.args["admin_action"] and self.args["admin_action"] == "add":
+            # Add admin
+            if self.args["admin_user_name"] not in curr_admins:
+                curr_admins.append(self.args["admin_user_name"])
+                detail_str += "admin added, "
+        elif self.args["admin_action"] and self.args["admin_action"] == "remove":
+            # Remove admin
+            if self.args["admin_user_name"] in curr_admins:
+                curr_admins.remove(self.args["admin_user_name"])
+                detail_str += "admin removed, "
+        # Update admin uid
+        query = """
+            UPDATE activity
+            SET act_type = %s, uids = %s, admin_uids = %s
+            WHERE act_id = %s
+        """
+        params = (
+            curr_act["act_type"],
+            json.dumps(curr_act["uids"]),
+            curr_admins,
+            act_id,
+        )
+        self.database.run_sql(query, params)
+        return {"status": True, "detail": detail_str}, 200

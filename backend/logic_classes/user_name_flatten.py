@@ -13,6 +13,9 @@ def user_flatten(data: dict) -> list:
         for key, value in data.items():
             if isinstance(value, dict):  # If value is a nested JSON (dict)
                 user_names.extend(user_flatten(value))
+            elif isinstance(value, list):  # If value is a list
+                for item in value:
+                    user_names.append(item)
             else:  # Base case: value is a user_name
                 user_names.append(value)
     else:
