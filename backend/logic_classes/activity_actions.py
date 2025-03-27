@@ -8,7 +8,7 @@ from datetime import datetime
 
 from backend.logic_classes import user_auth
 from backend.logic_classes import user_name_flatten as unf
-from backend.logic_classes import purge_tree as pt
+from backend.logic_classes import bondsmith
 from backend.flask_api import dbconn
 
 
@@ -114,7 +114,8 @@ class ActivityActions:
     def update_crit(self) -> tuple[dict, int]:
         """
         Update critical fields of an activity
-        Requires uid, reauth_jwt, act_id to auth
+        Requires uid, reauth_jwt, act_id to auth (check in admin_uids)
+        Inputs: act_type, user_action, target_uid, uid_path, uid_tree, admin_action
 
         Possible actions:
         """
@@ -172,7 +173,7 @@ class ActivityActions:
         elif self.args["user_action"] == "purge":
             # remove all instances of target uid in the user_tree
             # DO NOT PURGE USER ACCOUNT, handled in main function
-            curr_act["uids"] = pt.purge_tree(curr_act["uids"], self.args["target_uid"])
+            curr_act["uids"] = bondsmith.bond(curr_act["uids"], self.args["target_uid"])
             detail_str += "tree purged of user, "
         else:
             return {"status": False, "error": "Invalid user_action"}, 400

@@ -69,7 +69,7 @@ activity_create.add_argument(
 #######################################################################################
 # Activity Modify
 activity_crit_mod = reqparse.RequestParser()
-activity_modify.add_argument(
+activity_crit_mod.add_argument(
     "act_type",
     type=str,
     help="For changing act_type, not required",
@@ -93,7 +93,7 @@ activity_crit_mod.add_argument(
     help="modified uid tree, directly from frontend",
     required=False,
 )
-activity_crit_mod.add_arguments(
+activity_crit_mod.add_argument(
     "uid_path",
     type=str,
     help="path to insert uid, will create if not exist, optional, separate with /, no space around",
@@ -111,39 +111,3 @@ activity_crit_mod.add_argument(
 #######################################################################################
 
 #######################################################################################
-
-
-activity_modify.add_argument("act_id", type=int, help="Activity id", required=True)
-activity_modify.add_argument(
-    "user_name", type=str, help="user_name is required", required=True
-)
-activity_modify.add_argument(
-    "act_type", type=str, help="type of activity", required=False
-)
-activity_modify.add_argument(
-    "user_name_tree", type=dict, help="user_name_tree", required=False
-)
-activity_modify.add_argument(
-    "admin_user_name", type=list, help="list of admin", required=False
-)
-activity_modify.add_argument(
-    "due_date",
-    type=str,
-    help="Due date in the form '2025-02-02 14:30:00'",
-    required=False,
-)
-activity_modify.add_argument(
-    "act_title", type=str, help="activity title", required=False
-)
-activity_modify.add_argument(
-    "act_brief", type=str, help="Activity brief, up to 256 char", required=False
-)
-activity_modify.add_argument(
-    "aux_info", type=dict, help="additional info for activity", required=False
-)
-activity_modify.add_argument(
-    "task_tree",
-    type=dict,
-    help="tree of all subtask ids, pre-defined slot uses -1",
-    required=False,
-)
