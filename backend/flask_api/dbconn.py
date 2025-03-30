@@ -32,7 +32,7 @@ class DBConn:
         
         # connection string is a string that contains: things such as name, user, password, host, port
         # this this way we tell program which database it connects to
-
+        # Xena was here
         # environmental variable is a variable we can access by the program; it is stored in a computer
         # thus it will not run into scope issues (DO NOT STORE THE ACCESSED ENVIRONMENTAL VARIABLE as global variable)
         # this is opposite to the purpose of environmental variable. The purpose of environmental variable is security
