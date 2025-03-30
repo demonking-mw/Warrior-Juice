@@ -77,6 +77,13 @@ class UserInfoEdit:
     def put_list(self):
         """
         Modify user information
+
+        Input spec:
+        target: act_list or sess_list
+        remove_list: list of act_ids or sess_ids to remove
+        add_list: list of act_ids or sess_ids to add
+        Basically like github commit, only insert delta
+
         For act_list, sess_id: returns 2 lists: not removed, not added
         Required input: act_ids: list; sess_ids: list
         """

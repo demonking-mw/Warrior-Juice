@@ -22,6 +22,8 @@ if [[ -z "$VIRTUAL_ENV" ]]; then
 else
     echo "Virtual environment already active."
 fi
+echo "black-ing"
+black .
 
 test_file="./backend/api_tests/$1.txt"
 
