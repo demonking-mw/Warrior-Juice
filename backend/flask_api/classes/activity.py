@@ -56,6 +56,20 @@ class Activity(Resource):
         database.close()
         return result, code
 
+    def put(self):
+        """
+        update an activity
+        """
+        args = input_req.activity_mod.parse_args()
+        database = dbconn.DBConn()
+        activity_act = aa.ActivityActions(database, args)
+        if args["is_crit"]:
+            result, code = activity_act.update_crit()
+            database.close()
+            return result, code
+        return {"status": False, "detail": "monkey"}, 500
+        # Non-crit update not built yet
+
         # # Create the activity
         # args = input_req.activity_create.parse_args()
 
@@ -122,118 +136,3 @@ class Activity(Resource):
         #         "failed": failed_users,
         #     },
         # }, 201
-
-    def put(self):
-        """
-        Update a task, for subtask tree, a new tree is required
-        """
-        args = input_req.activity_modify.parse_args()
-        database = dbconn.DBConn()
-        # Get the activity and confirm the user has access to actions
-
-        sql_query = f"SELECT * FROM activity WHERE act_id = '{args['act_id']}';"
-        try:
-            act = database.run_sql(sql_query)
-            if not act:
-                database.close()
-                return {
-                    "status": False,
-                    "detail": {"status": "activity not found"},
-                }, 400
-        except psycopg.errors.UndefinedColumn as e:
-            database.close()
-            return {
-                "status": False,
-                "detail": {"status": "activity not found", "detail": e},
-            }, 400
-        if args["user_name"] not in unf.user_flatten(act[0]["user_name"]):
-            database.close()
-            return {
-                "status": False,
-                "detail": {"status": "user does not have access to activity"},
-            }, 400
-        # At this point, the user has access to the activity
-        # Check if user_name is in admin_user_name array
-        admin_access = True
-        if args["user_name"] not in act[0]["admin_user_name"]:
-            admin_access = False
-        # Update the activity
-        if args["action"] == "update":
-            # Update the activity
-            put_targets = [
-                "act_title",
-                "act_type",
-                "due_date",
-                "act_brief",
-                "aux_info",
-                "task_tree",
-            ]
-            columns, values, params = build_qparser.qparser(put_targets, args)
-            # Permission required for below fields
-            if args.get("user_name_tree") and admin_access:
-                columns.append("user_name_tree")
-                values.append("%s")
-                params.append(json.dumps(args["user_name_tree"]))
-            if args.get("admin_user_name") and admin_access:
-                columns.append("admin_user_name")
-                values.append("%s")
-                params.append(json.dumps(args["admin_user_name"]))
-            if len(columns) == 0:
-                database.close()
-                return {
-                    "status": False,
-                    "detail": {
-                        "status": "no fields to update",
-                        "admin_access": admin_access,
-                    },
-                }, 400
-            sql_query = f"""
-                UPDATE activity
-                SET {', '.join([f'{col} = %s' for col in columns])}
-                WHERE act_id = '{args['act_id']}';
-            """
-            try:
-                database.run_sql(sql_query, params)
-            except Exception as e:  # pylint: disable=broad-except
-                database.close()
-                return {
-                    "status": False,
-                    "detail": {"status": "activity update failed", "detail": str(e)},
-                }, 400
-            database.close()
-            return {
-                "status": True,
-                "detail": {"status": "activity updated", "admin_access": admin_access},
-            }, 200
-        elif args["action"] == "delete":
-            # Delete the activity
-            if admin_access:
-                sql_query = f"DELETE FROM activity WHERE act_id = '{args['act_id']}';"
-                try:
-                    database.run_sql(sql_query)
-                    database.close()
-                except Exception as e:  # pylint: disable=broad-except
-                    database.close()
-                    return {
-                        "status": False,
-                        "detail": {
-                            "status": "activity deletion failed",
-                            "detail": str(e),
-                        },
-                    }, 400
-                return {
-                    "status": True,
-                    "detail": {
-                        "status": "activity deleted",
-                        "user_name_tree": act[0]["user_name"],
-                        "admin_list": act[0]["admin_user_name"],
-                    },
-                }, 200
-                # Purge should be calle separately
-        else:
-            # Invalid action
-            database.close()
-            return {
-                "status": False,
-                "detail": {"status": "invalid action"},
-            }, 400

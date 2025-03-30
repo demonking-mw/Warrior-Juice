@@ -151,16 +151,16 @@ class ActivityActions:
             pass
         elif self.args["user_action"] == "add":
             # insertion
-            if not self.args["target_uids"]:
+            if not self.args["target_uid"]:
                 return {"status": False, "error": "Missing uids"}, 400
-            if self.args["target_uids"] not in unf.user_flatten(curr_act["uids"]):
+            if self.args["target_uid"] not in unf.user_flatten(curr_act["uids"]):
                 if self.args["uid_path"]:
                     # Insert uid to specific location, build later
                     pass
                 else:
                     if "colaborator" not in curr_act["uids"]:
                         curr_act["uids"]["colaborator"] = []
-                    curr_act["uids"].append(self.args["target_uids"])
+                    curr_act["uids"]["colaborator"].append(self.args["target_uid"])
                     detail_str += "User added to colaborator, "
                     # user added to colaborator list
 

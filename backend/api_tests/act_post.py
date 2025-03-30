@@ -26,9 +26,9 @@ response = requests.post(
 )
 print(response.json())
 if response.json().get("status"):
-    print("act_get complete\n")
+    print("act_post complete\n")
     sys.exit(0)
 else:
-    print("act_get failed")
+    print("act_post failed")
     print(response.json())
     sys.exit(3)

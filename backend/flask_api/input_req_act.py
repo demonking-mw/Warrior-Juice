@@ -68,38 +68,52 @@ activity_create.add_argument(
 
 #######################################################################################
 # Activity Modify
-activity_crit_mod = reqparse.RequestParser()
-activity_crit_mod.add_argument(
+activity_mod = reqparse.RequestParser()
+activity_mod.add_argument("uid", type=str, help="User ID is required", required=True)
+activity_mod.add_argument(
+    "reauth_jwt",
+    type=str,
+    help="JWT token provided from first login, good for 1h",
+    required=True,
+    default=None,
+)
+activity_mod.add_argument(
+    "is_crit", type=bool, help="is this a critical activity?", required=True
+)
+activity_mod.add_argument(
+    "act_id", type=int, help="Activity ID is required", required=True
+)
+activity_mod.add_argument(
     "act_type",
     type=str,
     help="For changing act_type, not required",
     required=False,
 )
-activity_crit_mod.add_argument(
+activity_mod.add_argument(
     "user_action",
     type=str,
     help="for modifying uids, can be put, add, purge, leave blank for no change",
     required=False,
 )
-activity_crit_mod.add_argument(
+activity_mod.add_argument(
     "target_uid",
     type=str,
     help="the target uid to add or purge",
     required=False,
 )
-activity_crit_mod.add_argument(
+activity_mod.add_argument(
     "uid_tree",
     type=dict,
     help="modified uid tree, directly from frontend",
     required=False,
 )
-activity_crit_mod.add_argument(
+activity_mod.add_argument(
     "uid_path",
     type=str,
     help="path to insert uid, will create if not exist, optional, separate with /, no space around",
     required=False,
 )
-activity_crit_mod.add_argument(
+activity_mod.add_argument(
     "admin_action",
     type=int,
     help="Action for admin, leave blank if no need. Target: add, remove",

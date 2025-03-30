@@ -32,7 +32,7 @@ def bond(
         result = {}
         path_found = False
         for key, value in data.items():
-            if key == path[0] and is_insert:
+            if is_insert and key == path[0]:
                 path = path[1:]  # Remove the first item in path
                 path_found = True
             cleaned_value = bond(value, target_val, path, is_insert)
