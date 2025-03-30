@@ -4,3 +4,4 @@ eup_login
 actinfo_put
 eupn_signup
 act_get
+act_post
