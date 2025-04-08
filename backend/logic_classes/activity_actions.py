@@ -7,8 +7,8 @@ import json
 from datetime import datetime
 
 from backend.logic_classes import user_auth
-from backend.logic_classes import user_name_flatten as unf
-from backend.logic_classes import bondsmith
+from backend.logic_classes.helpers import user_name_flatten as unf
+from backend.logic_classes.helpers import bondsmith
 from backend.flask_api import dbconn
 
 

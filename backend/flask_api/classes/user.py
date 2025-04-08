@@ -5,7 +5,7 @@ Operations around users
 # pylint: disable=import-error
 from flask_restful import Resource
 from backend.flask_api import input_req_user as input_req
-from backend.logic_classes import google_auth_extract as ga_ext
+from backend.logic_classes.helpers import google_auth_extract as ga_ext
 from backend.logic_classes import user_auth, admin_user_edit as aue
 from backend.flask_api import dbconn
 
