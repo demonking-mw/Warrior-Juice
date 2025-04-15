@@ -30,13 +30,15 @@ class ActivityActions:
         self.auth_result, self.auth_code = auth_class.login_jwt()
         if self.auth_code == -1:
             print("ERROR:" + str(self.auth_result))
+        if self.auth_result and self.auth_result["status"]:
+            self.authed = True
 
     def get(self) -> tuple[dict, int]:
         """
         Get the activities for the user
         Takes in: uid, reauth_jwt, get_all(bool). act_id(optional)
         """
-        if not self.auth_result["status"]:
+        if not self.authed:
             return self.auth_result, self.auth_code
         if self.args["get_type"] == "all":
             # NO FAIL CASE HERE
@@ -82,6 +84,8 @@ class ActivityActions:
         # Validate required fields
 
         # Prepare SQL query and parameters
+        if not self.authed:
+            return self.auth_result, self.auth_code
         query = """
             INSERT INTO activity (act_type, uids, admin_uids, due_date, act_title, act_brief, act_aux_info, tasks_tree)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
@@ -120,6 +124,8 @@ class ActivityActions:
         Possible actions:
         """
         # Validate required fields
+        if not self.authed:
+            return self.auth_result, self.auth_code
         act_id = self.args["act_id"]
         query = "SELECT * FROM activity WHERE act_id = %s"
         table_1 = self.database.run_sql(query, (act_id,))
