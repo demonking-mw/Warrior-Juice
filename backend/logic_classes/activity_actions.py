@@ -156,7 +156,7 @@ class ActivityActions:
         if not self.args["user_action"]:
             pass
         elif self.args["user_action"] == "add":
-            # insertion
+            # insertion of ONE user
             if not self.args["target_uid"]:
                 return {"status": False, "error": "Missing uids"}, 400
             if self.args["target_uid"] not in unf.user_flatten(curr_act["uids"]):
