@@ -6,9 +6,11 @@ BASE = "http://127.0.0.1:5000"
 response = requests.post(
     BASE + "/user",
     json={
+        "type": "eup",
+        "action": "signup",
         "uid": "juice",
         "user_name": "jocelyn",
-        "pwd": "",
+        "pwd": "0123",
         "email": "juice@workaholic.lol",
     },
     timeout=35,
@@ -18,9 +20,11 @@ if response.json().get("status"):
     del_response = requests.put(
         BASE + "/user",
         json={
+            "auth_type": "eup",
             "action": "delete",
+            "uid": "juice",
             "user_name": "jocelyn",
-            "pwd": "100",
+            "pwd": "0123",
         },
         timeout=35,
     )

@@ -78,7 +78,7 @@ class User(Resource):
                 return {"status": False, "detail": {"status": "info mismatch"}}, 400
             else:
                 return user_auth_json, login_status
-        elif args["type"] == "jwt":
+        elif args["type"] == "jwt" or args["type"] == "jwt_check":
             # login with a jwt token
             if "reauth_jwt" not in args:
                 return {
@@ -87,23 +87,10 @@ class User(Resource):
                 }, 400
             database = dbconn.DBConn()
             user_auth_obj = user_auth.UserAuth(database, args)
-            user_auth_json, login_status = user_auth_obj.login_jwt()
-            database.close()
-            if login_status == -1:
-                print("ERROR: something is cooked for login")
-                return {"status": False, "detail": {"status": "info mismatch"}}, 400
+            if args["type"] == "jwt":
+                user_auth_json, login_status = user_auth_obj.login_jwt()
             else:
-                return user_auth_json, login_status
-        elif args["type"] == "jwt_check":
-            # login with a jwt token
-            if "reauth_jwt" not in args:
-                return {
-                    "status": False,
-                    "detail": {"status": "reauth_jwt missing"},
-                }, 400
-            database = dbconn.DBConn()
-            user_auth_obj = user_auth.UserAuth(database, args)
-            user_auth_json, login_status = user_auth_obj.login_jwt(True)
+                user_auth_json, login_status = user_auth_obj.login_jwt(True)
             database.close()
             if login_status == -1:
                 print("ERROR: something is cooked for login")
@@ -135,7 +122,6 @@ class User(Resource):
         jwt_token: str: token for go type
         user_name: str: existing user name
         - optional
-        - for eup auth
         pwd: str: old password, for auth
         - optional, for eup auth
         new_pwd: str: new password
@@ -151,9 +137,11 @@ class User(Resource):
         edit_json = user_info_edit.edit()
         if not edit_json["status"]:
             database.close()
+            print(edit_json["detail"])
             return edit_json, 400
         result = user_info_edit.edit()
         database.close()
         if result["status"]:
             return result, 200
+        print(edit_json["detail"])
         return result, 400

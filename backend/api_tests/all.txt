@@ -6,3 +6,5 @@ eupn_signup
 act_get
 act_post
 act_put_crit
+user_edit
+user_add_drop_test
