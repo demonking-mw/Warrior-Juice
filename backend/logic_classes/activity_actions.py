@@ -10,6 +10,7 @@ from backend.logic_classes import user_auth
 from backend.logic_classes.helpers import user_name_flatten as unf
 from backend.logic_classes.helpers import bondsmith
 from backend.flask_api import dbconn
+from backend.logic_classes.helpers import batch_ins_gen as big
 
 
 class ActivityActions:
@@ -142,16 +143,25 @@ class ActivityActions:
             curr_act["act_type"] = self.args["act_type"]
         if not self.args["target_uid"]:
             # that's it, update and return
-            query = """
-            UPDATE activity
-            SET act_type = %s
-            WHERE act_id = %s
-            """
-            params = (
-                curr_act["act_type"],
+            upd_query, values = big.create_query(
+                "activity",
+                {
+                    "act_type": curr_act["act_type"],
+                },
+                "act_id",
                 act_id,
             )
-            self.database.run_sql(query, params)
+            self.database.run_sql(upd_query, values)
+            # query = """
+            # UPDATE activity
+            # SET act_type = %s
+            # WHERE act_id = %s
+            # """
+            # params = (
+            #     curr_act["act_type"],
+            #     act_id,
+            # )
+            # self.database.run_sql(query, params)
             return {"status": True, "detail": "Activity type updated"}, 200
         if not self.args["user_action"]:
             pass
@@ -198,16 +208,28 @@ class ActivityActions:
                 curr_admins.remove(self.args["admin_user_name"])
                 detail_str += "admin removed, "
         # Update admin uid
-        query = """
-            UPDATE activity
-            SET act_type = %s, uids = %s, admin_uids = %s
-            WHERE act_id = %s
-        """
-        params = (
-            curr_act["act_type"],
-            json.dumps(curr_act["uids"]),
-            curr_admins,
+        targ_dict = {
+            "act_type": curr_act["act_type"],
+            "uids": json.dumps(curr_act["uids"]),
+            "admin_uids": curr_admins,
+        }
+        upd_query, values = big.create_query(
+            "activity",
+            targ_dict,
+            "act_id",
             act_id,
         )
-        self.database.run_sql(query, params)
+        self.database.run_sql(upd_query, values)
+        # query = """
+        #     UPDATE activity
+        #     SET act_type = %s, uids = %s, admin_uids = %s
+        #     WHERE act_id = %s
+        # """
+        # params = (
+        #     curr_act["act_type"],
+        #     json.dumps(curr_act["uids"]),
+        #     curr_admins,
+        #     act_id,
+        # )
+        # self.database.run_sql(query, params)
         return {"status": True, "detail": detail_str}, 200

@@ -1,5 +1,5 @@
 """
-Tests create an act
+Tests editing crit info of an act
 """
 
 import sys
@@ -16,7 +16,7 @@ act_json = {
     "is_crit": True,
     "uid": "bob",
     "reauth_jwt": reauth_token,
-    "act_type": "monkey",
+    "act_type": "marmoset",
     "user_action": "add",
     "target_uid": "116908711564250124725",
 }

@@ -5,6 +5,7 @@ Examples: add/mod/del activities, sessions, calculate scores, etc
 
 from backend.logic_classes import user_auth
 from backend.flask_api import dbconn
+from backend.logic_classes.helpers import batch_ins_gen as big
 
 
 class UserInfoEdit:
@@ -116,35 +117,25 @@ class UserInfoEdit:
                 target_list.append(item)
                 to_add.remove(item)
         if is_act_list:
-            update_query = """
-            UPDATE user_accounts
-            SET user_act_list = %s
-            WHERE uid = %s;
-            """
-            self.database.run_sql(
-                update_query,
-                (target_list, self.args["uid"]),
-            )
-            return {
-                "status": True,
-                "detail": {"removed": to_remove, "added": to_add},
-                "jwt": self.new_jwt,
-            }, 200
+            targ_dict = {
+                "user_act_list": target_list,
+            }
         else:
-            update_query = """
-            UPDATE user_accounts
-            SET user_sess_id = %s
-            WHERE uid = %s;
-            """
-            self.database.run_sql(
-                update_query,
-                (target_list, self.args["uid"]),
-            )
-            return {
-                "status": True,
-                "detail": {"removed": to_remove, "added": to_add},
-                "jwt": self.new_jwt,
-            }, 200
+            targ_dict = {
+                "user_sess_id": target_list,
+            }
+        upd_query, values = big.create_query(
+            "user_accounts",
+            targ_dict,
+            "uid",
+            self.args["uid"],
+        )
+        self.database.run_sql(upd_query, values)
+        return {
+            "status": True,
+            "detail": {"removed": to_remove, "added": to_add},
+            "jwt": self.new_jwt,
+        }, 200
 
     def update_score(self):
         """
