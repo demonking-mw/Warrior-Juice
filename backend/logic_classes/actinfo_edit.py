@@ -19,6 +19,7 @@ To mod task tree:
 
 from backend.flask_api import dbconn
 from backend.logic_classes import user_auth
+from backend.logic_classes.helpers import batch_ins_gen as big
 
 
 class ActInfoEdit:
@@ -46,3 +47,33 @@ class ActInfoEdit:
             print("ERROR:" + str(self.auth_result))
         if self.auth_result and self.auth_result["status"]:
             self.authed = True
+        self.to_modify = {}
+        # self.to_modify is a dict storing which entry to modify
+        # and what to modify it to
+
+    def check_auth(self) -> bool:
+        """
+        Check if the user is authenticated
+        """
+        if not self.authed:
+            return False
+        return True
+
+    def edit(self) -> tuple[dict, int]:
+        """
+        Edit the set stuff
+        (basically performing what was told)
+        Must be used AFTER modifying the to_modify dict using other funcitons
+        """
+        if not self.check_auth():
+            return self.auth_result, 401
+        if not self.to_modify:
+            return {"status": False, "detail": "Nothing modified"}, -1
+            # Should not happen through user input
+        upd_query, values = big.create_query(
+            "activity",
+            self.to_modify,
+            "act_id",
+            self.args["act_id"],
+        )
+        # CONTINUE FROM HERE AFTER TESTING ACTIVITY_AUTH
