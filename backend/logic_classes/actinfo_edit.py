@@ -40,6 +40,8 @@ class ActInfoEdit:
     - purge task tree with a list of task ids
     
     REQUIRES: task_create_empty and task_delete function inserted in task_tree_set
+    
+    Calling order: ActInfoEdit(database, args), then edit()
     """
 
     def __init__(self, database: dbconn.DBConn, args: dict = None) -> None:
@@ -55,6 +57,9 @@ class ActInfoEdit:
             self.authed = True
         self.act_auth_result, self.act_table = act_auth.act_auth(self.database, self.args)
         self.to_modify = {}
+        self.modded = self.apply_actions_simple()
+        if self.task_tree_set():
+            self.modded.append("task_tree")
         # self.to_modify is a dict storing which entry to modify
         # and what to modify it to
 
@@ -67,7 +72,7 @@ class ActInfoEdit:
             return False
         return True
 
-    def apply_actions_simple(self) -> tuple[list, bool]:
+    def apply_actions_simple(self) -> list:
         """
         Apply simple actions to the activity
         - change due date
@@ -76,7 +81,7 @@ class ActInfoEdit:
         Return: a list of what entries were modified
         """
         if not self.check_auth():
-            return [], False
+            return []
         # Check if the user is allowed to see this activity
         moded = []
         if self.args["act_title"]:
@@ -92,9 +97,7 @@ class ActInfoEdit:
         if self.args["aux_info"]:
             self.to_modify["aux_info"] = self.args["aux_info"]
             moded.append("aux_info")
-        if moded:
-            return moded, True
-        return moded, False
+        return moded
 
     def task_tree_set(self) -> bool:
         """
@@ -148,6 +151,6 @@ class ActInfoEdit:
         self.database.run_sql(upd_query, values)
         return {
             "status": True,
-            "detail": {"status": "activity modified"},
+            "detail": self.modded,
             "jwt": self.auth_result["jwt"],
         }, 200

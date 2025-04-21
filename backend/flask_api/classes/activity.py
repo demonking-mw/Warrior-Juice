@@ -7,10 +7,11 @@ import json
 from flask_restful import Resource
 
 from backend.flask_api import dbconn, input_req_act as input_req
-from backend.logic_classes.helpers import user_name_flatten as unf
-from backend.logic_classes.helpers import build_qparser
 from backend.logic_classes import userinfo_edit
 from backend.logic_classes import activity_actions as aa
+from backend.logic_classes import actinfo_edit as ae
+from backend.logic_classes.helpers import user_name_flatten as unf
+from backend.logic_classes.helpers import build_qparser
 
 
 class Activity(Resource):
@@ -61,10 +62,16 @@ class Activity(Resource):
         """
         args = input_req.activity_mod.parse_args()
         database = dbconn.DBConn()
-        activity_act = aa.ActivityActions(database, args)
         if args["is_crit"]:
+            activity_act = aa.ActivityActions(database, args)
             result, code = activity_act.update_crit()
             database.close()
             return result, code
-        return {"status": False, "detail": "monkey"}, 500
+        else:
+            actinfo_editor = ae.ActInfoEdit(database, args)
+            result, code = actinfo_editor.edit()
+            database.close()
+            if code == -1:
+                return {"status": False, "detail": "internal error, should not happen"}, 400
+            return result, code
         # Non-crit update not built yet
