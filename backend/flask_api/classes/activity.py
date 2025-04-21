@@ -61,7 +61,7 @@ class Activity(Resource):
         update an activity
         Calls activity_actions.update_crit() for crit activities
         Calls actinfo_edit for non-crit activities
-        
+
         Args:
         uid/reauth_jwt: str: required
         act_id: int: required

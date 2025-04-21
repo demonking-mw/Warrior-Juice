@@ -149,7 +149,7 @@ activity_mod.add_argument(
     help="task tree, optional",
     required=False,
 )
-activity_mod.add_argement(
+activity_mod.add_argument(
     "purge_tree",
     type=bool,
     help="whether to purge the tree, optional",
