@@ -126,11 +126,12 @@ class ActInfoEdit:
                 # task_create_empty(task), NOT IMPLEMENTED
                 print("DEBUG: task_create_empty")
                 print(task)
-        for task in old_list:
-            if task not in new_list:
-                # task_delete(task), NOT IMPLEMENTED
-                print("DEBUG: task_delete")
-                print(task)
+        if self.args["purge_tree"]:
+            for task in old_list:
+                if task not in new_list:
+                    # task_delete(task), NOT IMPLEMENTED
+                    print("DEBUG: task_delete")
+                    print(task)
         return True
 
     def edit(self) -> tuple[dict, int]:

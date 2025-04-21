@@ -149,6 +149,13 @@ activity_mod.add_argument(
     help="task tree, optional",
     required=False,
 )
+activity_mod.add_argement(
+    "purge_tree",
+    type=bool,
+    help="whether to purge the tree, optional",
+    required=False,
+    default=True,
+)
 # PURGE WILL ALSO HAVE TO REMOVE ACTIVITY FROM USER_ACCOUNTS.
 
 # Activity Reqs

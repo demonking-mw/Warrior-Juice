@@ -59,6 +59,28 @@ class Activity(Resource):
     def put(self):
         """
         update an activity
+        Calls activity_actions.update_crit() for crit activities
+        Calls actinfo_edit for non-crit activities
+        
+        Args:
+        uid/reauth_jwt: str: required
+        act_id: int: required
+        is_crit: bool: required
+        act_type: str: for changing act_type, CRIT, NR
+        user_action: str: what to do to uids? put/add/purge, blank for no change, CRIT, NR
+        target_uid: str: the uid to work on, CRIT, NR
+        uid_tree: dict: updated uid_tree for replacement, CRIT, NR
+        uid_path: str: path to insert uid, CRIT, NR, Not Implemented Yet
+        admin_action: str: what to do to admin uids? put/add/purge, blank for no change, CRIT, NR
+        (uses target_uid)
+        due_date: str: new due date, NCRIT, NR
+        act_title: str: new activity title, NCRIT, NR
+        act_brief: str: new activity brief, NCRIT, NR
+        aux_info: dict: new activity aux_info, NCRIT, NR
+        tasks_tree: dict: new task tree, NCRIT, NR
+        purge_tree: bool: whether to purge tree, NCRIT, NR, default True
+        - Side effect: create every task new to the tree, delete every task not in the tree if purge_tree
+        - False is for migration of tasks to different activity, should be rare action
         """
         args = input_req.activity_mod.parse_args()
         database = dbconn.DBConn()
