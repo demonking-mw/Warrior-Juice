@@ -48,13 +48,13 @@ class ActivityActions:
             all_act_ids = self.auth_result["detail"]["user_act_list"]
             num_of_acts = len(all_act_ids)
             if not all_act_ids:
-                return {"status": True, "detail": {}}, 200
+                return {"status": True, "detail": {}, "jwt": self.auth_result["jwt"]}, 200
             # using auth, get all acts that belong to the user
             query = "SELECT * FROM activity WHERE act_id = ANY(%s)"
             table_1 = self.database.run_sql(query, (all_act_ids,))
             return {
                 "status": True,
-                "detail": {"total_count": num_of_acts, "acts": table_1},
+                "detail": {"total_count": num_of_acts, "acts": table_1}, "jwt": self.auth_result["jwt"]
             }, 200
         elif self.args["get_type"] == "one":
             # Get a single activity, by its id
@@ -179,7 +179,7 @@ class ActivityActions:
             #     act_id,
             # )
             # self.database.run_sql(query, params)
-            return {"status": True, "detail": "Activity type updated"}, 200
+            return {"status": True, "detail": "Activity type updated", "jwt": self.auth_result["jwt"]}, 200
         if not self.args["user_action"]:
             pass
         elif self.args["user_action"] == "add":
@@ -249,4 +249,4 @@ class ActivityActions:
         #     act_id,
         # )
         # self.database.run_sql(query, params)
-        return {"status": True, "detail": detail_str}, 200
+        return {"status": True, "detail": detail_str, "jwt": self.auth_result["jwt"]}, 200

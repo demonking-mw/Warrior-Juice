@@ -119,6 +119,12 @@ activity_mod.add_argument(
     help="Action for admin, leave blank if no need. Target: add, remove",
     required=False,
 )
+activity_mod.add_argument(
+    "due_date",
+    type=str,
+    help="Due date in the form 'YYYY-MM-DD HH:MM:SS', optional",
+    required=False,
+)
 # PURGE WILL ALSO HAVE TO REMOVE ACTIVITY FROM USER_ACCOUNTS.
 
 # Activity Reqs
