@@ -6,10 +6,11 @@ table_1 = database.run_sql('SELECT * FROM user_accounts;')
 del database
 """
 
-
+import os
 import psycopg
 from psycopg_pool import ConnectionPool
 from dotenv import load_dotenv
+from psycopg.errors import QueryCanceled, OperationalError
 
 
 class DBConn:
@@ -26,8 +27,7 @@ class DBConn:
         """
         # Get the connection string from the environment variable
         load_dotenv()
-        # self.connection_string = os.getenv("DATABASE_URL")
-        self.connection_string = "postgresql://wjdb_owner:U31LBQlcgPYf@ep-patient-darkness-a1123ymq-pooler.ap-southeast-1.aws.neon.tech/wjdb?sslmode=require"
+        self.connection_string = os.getenv("DATABASE_URL")
         self.conn_pool = ConnectionPool(
             self.connection_string, kwargs={"sslmode": "require"}
         )
@@ -38,15 +38,18 @@ class DBConn:
         return empty list if no result or status is false
         does not update cache
         """
-        with self.conn_pool.connection() as conn:
-            with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
-                cur.execute(sql_query, params)
-                results = []
-                if cur.description is not None:
-                    results = cur.fetchall()
-                else:
-                    conn.commit()
-
+        try:
+            with self.conn_pool.connection() as conn:
+                with conn.cursor(row_factory=psycopg.rows.dict_row) as cur:
+                    cur.execute(sql_query, params)
+                    results = []
+                    if cur.description is not None:
+                        results = cur.fetchall()
+                    else:
+                        conn.commit()
+        except (QueryCanceled, OperationalError) as e:
+            print(f"Database error: {e}")
+            results = []
         return results
 
     def close(self) -> None:
