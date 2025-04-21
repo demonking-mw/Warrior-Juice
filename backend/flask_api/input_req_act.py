@@ -125,6 +125,30 @@ activity_mod.add_argument(
     help="Due date in the form 'YYYY-MM-DD HH:MM:SS', optional",
     required=False,
 )
+activity_mod.add_argument(
+    "act_title",
+    type=str,
+    help="Activity title, optional",
+    required=False,
+)
+activity_mod.add_argument(
+    "act_brief",
+    type=str,
+    help="Activity brief, optional",
+    required=False,
+)
+activity_mod.add_argument(
+    "aux_info",
+    type=dict,
+    help="additional info for activity, optional",
+    required=False,
+)
+activity_mod.add_argument(
+    "tasks_tree",
+    type=dict,
+    help="task tree, optional",
+    required=False,
+)
 # PURGE WILL ALSO HAVE TO REMOVE ACTIVITY FROM USER_ACCOUNTS.
 
 # Activity Reqs

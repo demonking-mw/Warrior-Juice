@@ -17,6 +17,8 @@ To mod task tree:
 - provide a list of task ids to purge (should also purge tasks)
 """
 
+import json
+
 from datetime import datetime
 
 from backend.flask_api import dbconn
@@ -38,9 +40,9 @@ class ActInfoEdit:
     - mod aux_info (simple)(provide the modified aux_info dict)(ideally used by backend)
     - set task tree
     - purge task tree with a list of task ids
-    
-    REQUIRES: task_create_empty and task_delete function inserted in task_tree_set
-    
+
+    REQUIRES: task_create_empty and task_delete function inserted in tasks_tree_set
+
     Calling order: ActInfoEdit(database, args), then edit()
     """
 
@@ -55,11 +57,13 @@ class ActInfoEdit:
             print("ERROR:" + str(self.auth_result))
         if self.auth_result and self.auth_result["status"]:
             self.authed = True
-        self.act_auth_result, self.act_table = act_auth.act_auth(self.database, self.args)
+        self.act_auth_result, self.act_table = act_auth.act_auth(
+            self.database, self.args
+        )
         self.to_modify = {}
         self.modded = self.apply_actions_simple()
-        if self.task_tree_set():
-            self.modded.append("task_tree")
+        if self.tasks_tree_set():
+            self.modded.append("tasks_tree")
         # self.to_modify is a dict storing which entry to modify
         # and what to modify it to
 
@@ -99,7 +103,7 @@ class ActInfoEdit:
             moded.append("aux_info")
         return moded
 
-    def task_tree_set(self) -> bool:
+    def tasks_tree_set(self) -> bool:
         """
         Set the task tree for the activity
         Requires a list of task ids to set
@@ -109,14 +113,14 @@ class ActInfoEdit:
         """
         if not self.check_auth():
             return False
-        if not self.args["task_tree"]:
+        if not self.args["tasks_tree"]:
             return False
         # The user want to modify the task tree at this point
         # Stores the old tree for diff
-        old_list = unf.user_flatten(self.act_table[0]["task_tree"])
+        old_list = unf.user_flatten(self.act_table[0]["tasks_tree"])
         # task tree is basically user tree
-        self.to_modify["task_tree"] = self.args["task_tree"]
-        new_list = unf.user_flatten(self.args["task_tree"])
+        self.to_modify["tasks_tree"] = json.dumps(self.args["tasks_tree"])
+        new_list = unf.user_flatten(self.args["tasks_tree"])
         for task in new_list:
             if task not in old_list:
                 # task_create_empty(task), NOT IMPLEMENTED

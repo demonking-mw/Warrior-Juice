@@ -1,1 +1,1 @@
-act_put_crit
+act_put_non_crit

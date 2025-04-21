@@ -72,6 +72,9 @@ class Activity(Resource):
             result, code = actinfo_editor.edit()
             database.close()
             if code == -1:
-                return {"status": False, "detail": "internal error, should not happen"}, 400
+                return {
+                    "status": False,
+                    "detail": "internal error, should not happen",
+                }, 400
             return result, code
         # Non-crit update not built yet
