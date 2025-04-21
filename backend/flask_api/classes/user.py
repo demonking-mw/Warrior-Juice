@@ -14,11 +14,27 @@ class User(Resource):
     """
     Handles the database side of user operations
     Basically the implementation of user_auth.py
+    Get is paired with post for auto creation of account with google auth
     """
 
     def post(self):
         """
-        Handles auth.
+        Login AND signup user
+        Args:
+        type: str: ONEOF(go, jwt, eup, jwt_check)
+        - mandatory
+        - jwt_check is for login with reauth_jwt
+        jwt_token: str: token for go type
+        - optional, mandatory for go
+        reauth_jwt: str: token for jwt type
+        - optional, mandatory for reauth
+        - note: this is backend-generated, but jwt_token is from google
+        action: str: action for eup type
+        - optional, mandatory for eup
+        - can be: login or signup or delete
+        email: str: email for eup type
+        password: str: password for eup type
+        Name: str: name for eup type
         """
         args = input_req.user_auth.parse_args()
         if args["type"] == "go":
@@ -62,7 +78,7 @@ class User(Resource):
                 return {"status": False, "detail": {"status": "info mismatch"}}, 400
             else:
                 return user_auth_json, login_status
-        elif args["type"] == "jwt":
+        elif args["type"] == "jwt" or args["type"] == "jwt_check":
             # login with a jwt token
             if "reauth_jwt" not in args:
                 return {
@@ -71,23 +87,10 @@ class User(Resource):
                 }, 400
             database = dbconn.DBConn()
             user_auth_obj = user_auth.UserAuth(database, args)
-            user_auth_json, login_status = user_auth_obj.login_jwt()
-            database.close()
-            if login_status == -1:
-                print("ERROR: something is cooked for login")
-                return {"status": False, "detail": {"status": "info mismatch"}}, 400
+            if args["type"] == "jwt":
+                user_auth_json, login_status = user_auth_obj.login_jwt()
             else:
-                return user_auth_json, login_status
-        elif args["type"] == "jwt_check":
-            # login with a jwt token
-            if "reauth_jwt" not in args:
-                return {
-                    "status": False,
-                    "detail": {"status": "reauth_jwt missing"},
-                }, 400
-            database = dbconn.DBConn()
-            user_auth_obj = user_auth.UserAuth(database, args)
-            user_auth_json, login_status = user_auth_obj.login_jwt(True)
+                user_auth_json, login_status = user_auth_obj.login_jwt(True)
             database.close()
             if login_status == -1:
                 print("ERROR: something is cooked for login")
@@ -99,12 +102,34 @@ class User(Resource):
 
     def put(self):
         """
-        Edit users
-        Two types: admin and info
+        Edit ADMIN INFO OF USER!!
         Admin: change password, email for eup, change tier, delete user
         this class only handles admin, info is another class
         For email recovery, store a token in the aux_info json in user_account
         Then check it against the input
+
+        Args:
+        auth_type: str: auth type, can be eup or go or recover
+        - mandatory
+        - recover is not fully built yet since smtp is not setup
+        uid: str: user id
+        - mandatory
+        - not changable
+        action: str: action to take, can be change or delete
+        - mandatory
+        - change: change password, email, tier
+        - delete: delete user
+        jwt_token: str: token for go type
+        user_name: str: existing user name
+        - optional
+        pwd: str: old password, for auth
+        - optional, for eup auth
+        new_pwd: str: new password
+        - for changing
+        new_user_name: str: new user name
+        - for changing
+        auth_str: str: auth string for password recovery
+        - NOT BUILT YET
         """
         args = input_req.user_modify.parse_args()
         database = dbconn.DBConn()
@@ -112,9 +137,11 @@ class User(Resource):
         edit_json = user_info_edit.edit()
         if not edit_json["status"]:
             database.close()
+            print(edit_json["detail"])
             return edit_json, 400
         result = user_info_edit.edit()
         database.close()
         if result["status"]:
             return result, 200
+        print(edit_json["detail"])
         return result, 400

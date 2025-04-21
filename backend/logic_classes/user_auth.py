@@ -124,7 +124,8 @@ class UserAuth:
 
         Expected result: success; user not found; wrongly authed; wrong password
         """
-        if "uid" not in self.args or "pwd" not in self.args:
+        if not self.args["uid"] or not self.args["pwd"]:
+            # uid and pwd are mandatory
             print("ERROR: uid or pwd not provided")
             return {}, -1
         sql_query = f"SELECT * FROM user_accounts WHERE uid = '{self.args['uid']}';"
@@ -149,7 +150,7 @@ class UserAuth:
         Expected result: success; uid unique violation
         """
         required_fields = ["uid", "pwd", "email", "user_name"]
-        if any(field not in self.args for field in required_fields):
+        if any(not self.args[field] for field in required_fields):
             print("ERROR: uid, pwd, email, or name not provided")
             return {}, -1
         sql_query = f"INSERT INTO user_accounts VALUES('{self.args['uid']}', '{self.args['user_name']}', '{self.args['pwd']}', '{self.args['email']}', false, 'eup', 'tier1', ARRAY[]::integer[], ARRAY[]::integer[], '{{}}'::jsonb, 0, '{{}}'::jsonb)"
@@ -193,7 +194,7 @@ class UserAuth:
 
         Expected result: success login; success signup; wrongly authed (upon login)
         """
-        if "sub" not in self.args:
+        if not self.args["sub"]:
             print("ERROR: sub not provided")
             return {}, -1
         sql_query = f"SELECT * FROM user_accounts WHERE uid = '{self.args['sub']}';"

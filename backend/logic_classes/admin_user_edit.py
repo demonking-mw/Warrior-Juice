@@ -76,9 +76,9 @@ class AdminUserEdit:
             # change info that was provided
             # including: password, username
             updates = []
-            if "new_pwd" in self.args:
+            if self.args["new_pwd"]:
                 updates.append(f"pwd = '{self.args['new_pwd']}'")
-            if "new_user_name" in self.args:
+            if self.args["new_user_name"]:
                 updates.append(f"user_name = '{self.args['new_user_name']}'")
             if updates:
                 sql_query = f"UPDATE user_accounts SET {', '.join(updates)} WHERE uid = '{self.args['uid']}';"

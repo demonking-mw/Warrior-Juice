@@ -1,5 +1,5 @@
 """
-tests login with email user password
+tests user eup login and crit mod
 """
 
 import sys
@@ -10,13 +10,13 @@ exit_code, response = RG.post("/user", req_json)
 if exit_code == 0:
     reauth_jwt = response.json().get("jwt")
     req_json = {
-        "reauth_jwt": reauth_jwt,
+        "auth_type": "eup",
+        "action": "change",
         "uid": "bob",
-        "target": "act_list",
-        "add_list": "3,4,5",
-        "remove_list": "1,7",
+        "pwd": "password",
+        "new_pwd": "password",
     }
-    exit_code, response = RG.put("/user/info", req_json, debug_mode=True)
+    exit_code, response = RG.put("/user", req_json, debug_mode=True)
 
 
 sys.exit(exit_code)

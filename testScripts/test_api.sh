@@ -49,11 +49,14 @@ for indiv_test in $(cat $test_file | tr -d '\r'); do
         fail_count=$((fail_count + 1))
     fi
 done
-echo -e "\n\nTests completed. Passed: $pass_count, Failed: $fail_count \n\n"
+echo -e "\n\nTests completed. Passed: $pass_count, Failed: $fail_count"
+if [ $fail_count -eq 0 ]; then
+    echo -e "🌸🎂🎉 Cheers! MW 🎉🎂🌸 \n\n"
+fi
 
 
 pkill -f "backend.flask_api.api_1"
-echo "Killed api server"
+echo "Killed api server\n"
 exit $fail_count
 
 

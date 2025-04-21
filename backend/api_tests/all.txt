@@ -1,7 +1,11 @@
 eup_reauth
 oauth_login
 eup_login
-actinfo_put
 eupn_signup
 act_get
 act_post
+act_put_crit
+act_put_non_crit
+user_edit
+user_add_drop_test
+userinfo_put
