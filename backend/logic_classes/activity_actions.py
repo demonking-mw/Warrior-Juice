@@ -7,6 +7,7 @@ import json
 from datetime import datetime
 
 from backend.logic_classes import user_auth
+from backend.logic_classes.helpers import activity_auth
 from backend.logic_classes.helpers import user_name_flatten as unf
 from backend.logic_classes.helpers import bondsmith
 from backend.flask_api import dbconn
@@ -127,15 +128,31 @@ class ActivityActions:
         # Validate required fields
         if not self.authed:
             return self.auth_result, self.auth_code
-        act_id = self.args["act_id"]
-        query = "SELECT * FROM activity WHERE act_id = %s"
-        table_1 = self.database.run_sql(query, (act_id,))
-        if not table_1:
-            return {"status": False, "error": "Activity not found"}, 404
-        # Check if the user has admin to see this activity
-        if self.args["uid"] not in table_1[0]["admin_uids"]:
-            return {"status": False, "error": "Unauthorized"}, 403
+        # act_id = self.args["act_id"]
+        # query = "SELECT * FROM activity WHERE act_id = %s"
+        # table_1 = self.database.run_sql(query, (act_id,))
+        # if not table_1:
+        #     return {"status": False, "error": "Activity not found"}, 404
+        # # Check if the user has admin to see this activity
+        # if self.args["uid"] not in table_1[0]["admin_uids"]:
+        #     return {"status": False, "error": "Unauthorized"}, 403
+
         # User has admin access, update curr_act and upload
+        act_auth_result, table_1 = activity_auth.act_auth(
+            self.database, self.args, is_admin=True
+        )
+        if act_auth_result != 0:
+            # activity not found
+            if act_auth_result == 2:
+                return {"status": False, "error": "Activity not found"}, 404
+            # user not allowed to see this activity
+            elif act_auth_result == 3:
+                return {"status": False, "error": "Unauthorized"}, 403
+            # user not admin of this activity but user can see this activity
+            elif act_auth_result == 4:
+                return {"status": False, "error": "View authed, Admin unauthed"}, 403
+        # user is admin of this activity
+        act_id = self.args["act_id"]
         curr_act = table_1[0]
         detail_str = ""
         # Only return failed, since no action will be performed
